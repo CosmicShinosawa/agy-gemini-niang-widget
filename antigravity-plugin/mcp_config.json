@@ -1,0 +1,5 @@
+{
+  "mcpServers": {
+    "usage": {"command": "node", "args": ["${PLUGIN_ROOT}/quota-mcp.mjs"]}
+  }
+}

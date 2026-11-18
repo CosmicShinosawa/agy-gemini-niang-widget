@@ -1,0 +1,6 @@
+{
+  "gemini-niang": {
+    "enabled": true,
+    "Stop": [{"type": "command", "command": "node ./stop.mjs", "timeout": 3}]
+  }
+}
