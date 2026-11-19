@@ -31,7 +31,7 @@ Windows 上双击 `预览挂件.cmd`。点角色打开第一页，再点气泡�
 本挂件改编自 Codex 的 **GPT-Niang** 和 DeepSeek Harness 的 **dsh-whale-widget**。维护者 **CosmicShinosawa** 在 **GPT-6.2 Astra** 的协助下，将两款挂件的功能移植到 Antigravity，接入本机额度读取，并按模型分组展示额度。仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。[开发与分发声明](ASSETS.md#开发与分发声明)
 
 - Windows 窗口、命中测试、拖动、动画、音频、图库、音乐律动、语录、颜色和 MCP 协议处理改编自 **GPT-Niang 1.3.5**。许可原文及版权声明在 `licenses/GPT-Niang-MIT.txt`。[上游项目](https://github.com/T7moris/GPT-Niang)
-- 气泡顺序、加权分支、图片气泡、吸附和翻转参考 **dsh-whale-widget 0.4.2**。其代码采用 MIT，原版图片、动图、图标、音效另行授权。本项目采用新合成的按压及松开音效。[上游项目和素材说明](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget/blob/main/PROVENANCE.md)
+- 气泡顺序、加权分支、图片气泡、吸附和翻转参考 **dsh-whale-widget 0.4.2**。其代码采用 MIT，原版图片、动图、图标、音效另行授权。本项目采用新合成的按压及松开音效。[上游仓库 DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget) · [上游素材说明](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget/blob/main/PROVENANCE.md)
 - 感谢 **ZipZipPipe** 创作 Gemini 娘原形象。角色设定的许可、Q 版插画的出处情况及加工说明详见素材声明。项目代码采用 MIT 许可。[素材声明](ASSETS.md) · [代码许可证](LICENSE)
 
 自定义气泡支持额度、语录、静态图、GIF 和逐行字体及颜色，可按顺序或组内权重播放。DeepSeek 钱包余额、峰谷计价和逐轮账单属于 DSH 的账户数据。本移植版的额度气泡显示 Antigravity 公开给当前用户的读数。多币种账单和原项目发布渠道的自动更新未接入本地版本。
