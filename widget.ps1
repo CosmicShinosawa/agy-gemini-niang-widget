@@ -157,7 +157,7 @@ try{$settings=Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | Conve
   if($null-ne $settings.desktopLeft){try{$value=[double]$settings.desktopLeft;if(![double]::IsNaN($value)-and ![double]::IsInfinity($value)-and [Math]::Abs($value)-le 100000){$script:desktopLeft=$value}}catch{}}
   if($null-ne $settings.desktopTop){try{$value=[double]$settings.desktopTop;if(![double]::IsNaN($value)-and ![double]::IsInfinity($value)-and [Math]::Abs($value)-le 100000){$script:desktopTop=$value}}catch{}}
   if($settings.characterId-is [string]){$script:characterId=$settings.characterId}
-}catch{$script:settingsLoadFailed=$true}
+}catch{$script:settingsLoadFailed=[IO.File]::Exists($settingsFile) -or [IO.File]::Exists($settingsFile+'.bak')}
 $script:quotaPage=1
 $script:quotaPages=@()
 $script:snapEdges=$settings.snapEdges -ne $false
@@ -1086,6 +1086,11 @@ $script:window.Add_Closed({
   [Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown()
 })
 try{
+  if(!$script:settingsLoadFailed -and ![IO.File]::Exists($settingsFile) -and
+     $script:dataDir -eq (Join-Path $env:LOCALAPPDATA 'GeminiNiangWidget') -and
+     ![IO.File]::Exists((Join-Path $script:dataDir 'status.json')) -and ![IO.File]::Exists((Get-WidgetStartupLink))){
+    try{Set-WidgetAutostart $true}catch{Write-Warning "登录启动项创建失败：$_"}
+  }
   # Do not replace a settings file that failed to load with defaults; the
   # user's original file is the only remaining copy.
   if(!$script:settingsLoadFailed){Save-Settings}

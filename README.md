@@ -8,6 +8,8 @@
 2. 双击下载好的文件，点 **「确定」**。安装器会自动装好挂件和 Antigravity 配套插件，保留已有语录和设置。
 3. 安装完成后挂件会自动启动。打开并登录 Antigravity，点击窗口右下角的 Gemini 娘即可查看额度。如果 Antigravity 已经打开，重新启动它即可加载 Customizations 中的配套插件。
 
+从 **v0.2.4** 起，首次使用会默认开启「登录后随反重力启动」。登录 Windows 后打开 Antigravity，挂件就会跟着出现。右键点击挂件可开关此项。从 v0.2.3 或更早版本升级会保留原来的设置；之前未开启的用户，可以在右键菜单手动勾选。
+
 安装器不会创建开始菜单快捷方式。以后手动退出挂件后，可以到安装完成提示给出的目录双击 `预览挂件.cmd`。ZIP 和 JSON 供自动更新使用。[查看正式版及全部文件](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest)
 
 <img src="gemini-widget.png" alt="紫发猫耳、金紫异色瞳的 Gemini 娘挂件" width="180">

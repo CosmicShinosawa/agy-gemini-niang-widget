@@ -13,7 +13,7 @@ internal static class WidgetSetup
     private static int Main()
     {
         Application.EnableVisualStyles();
-        if (MessageBox.Show("为当前 Windows 用户安装 Gemini 娘挂件和 Antigravity 配套插件？\n\n安装完成后会自动打开挂件。已有的语录、形象和偏好会保留。",
+        if (MessageBox.Show("为当前 Windows 用户安装 Gemini 娘挂件和 Antigravity 配套插件？\n\n安装完成后会自动打开挂件。首次使用时默认开启「登录后随反重力启动」，可在挂件右键菜单关闭。已有的语录、形象和偏好会保留。",
             Title, MessageBoxButtons.OKCancel, MessageBoxIcon.Information) != DialogResult.OK)
             return 0;
 
