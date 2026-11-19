@@ -226,6 +226,10 @@ function Initialize-WidgetSettingsMenu {
   Add-SettingsAction '读取额度页' {Request-Refresh;Show-Quota}
   Add-SettingsSubmenu ('版本与更新 · '+$script:widgetVersion) {
     Add-SettingsAction '检查更新…' {Start-WidgetUpdate}
+    $script:settingsMenuUi.RestartUpdate=Add-SettingsAction '立即重启并更新' {
+      $script:restartUpdatePath=Get-WidgetUpdatePath $script:appDir $script:dataDir
+      if($script:restartUpdatePath){Exit-WidgetForSession}
+    } -ReturnItem
     $script:settingsMenuUi.AutoUpdate=Add-SettingsAction '每天自动检查并安装' {param($sender,$event)
       if($sender.IsChecked){[IO.File]::WriteAllText($script:autoUpdateFlag,'enabled');$script:nextUpdateProbe=0}
       elseif([IO.File]::Exists($script:autoUpdateFlag)){[IO.File]::Delete($script:autoUpdateFlag)}
@@ -271,6 +275,10 @@ function New-SettingsSlider([string]$Label,[double]$Minimum,[double]$Maximum,[do
 function Update-WidgetSizePresets{
   foreach($button in $script:settingsMenuUi.SizeButtons){$color=if([Math]::Abs([double]$button.Tag-$script:scale)-lt 0.05){'#E2D2EE'}else{'#F2ECF8'};$button.Background=[Windows.Media.BrushConverter]::new().ConvertFromString($color)}
 }
+function Update-WidgetRestartAction{
+  $pending=Get-WidgetUpdatePath $script:appDir $script:dataDir
+  $script:settingsMenuUi.RestartUpdate.Visibility=if($pending){[Windows.Visibility]::Visible}else{[Windows.Visibility]::Collapsed}
+}
 function Update-WidgetSettingsMenu{
   $script:settingsMenuSync=$true
   try{
@@ -279,6 +287,7 @@ function Update-WidgetSettingsMenu{
     $script:settingsMenuUi.Mirror.IsChecked=$script:mirrorOnLeft
     $script:settingsMenuUi.MusicEnabled.IsChecked=Test-WidgetMusicActive
     $script:settingsMenuUi.AutoUpdate.IsChecked=[IO.File]::Exists($script:autoUpdateFlag)
+    Update-WidgetRestartAction
     $script:settingsMenuUi.Completion.IsChecked=$script:completionNotificationsEnabled
     $script:settingsMenuUi.AutoQuoteEnabled.IsChecked=$script:autoQuoteEnabled
     foreach($choice in $script:settingsMenuUi.AutoQuoteIntervals){$choice.IsChecked=[int]$choice.Tag-eq $script:autoQuoteIntervalSeconds}

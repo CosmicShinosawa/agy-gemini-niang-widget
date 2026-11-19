@@ -6,6 +6,7 @@ if(!$CheckOnly -and !$Preview){
   if($updated){& (Join-Path $updated 'widget.ps1') -AppDir $updated -DataDir $DataDir;return}
 }
 $script:widgetVersion=Get-WidgetVersion $AppDir
+$script:restartUpdatePath=$null
 $script:autoUpdateFlag=Join-Path $DataDir 'auto-update.enabled'
 $script:nextUpdateProbe=0
 $script:appDir=$AppDir
@@ -1041,7 +1042,7 @@ $script:eventHooks=@(
 )
 $script:timer=New-Object Windows.Threading.DispatcherTimer
 $script:timer.Interval=[TimeSpan]::FromMilliseconds(1000)
-$script:timer.Add_Tick({try{Tick-Widget}catch{[IO.File]::WriteAllText((Join-Path $script:dataDir 'display-error.txt'),$_.Exception.Message)}})
+$script:timer.Add_Tick({try{Tick-Widget;if($script:context.IsOpen){Update-WidgetRestartAction}}catch{[IO.File]::WriteAllText((Join-Path $script:dataDir 'display-error.txt'),$_.Exception.Message)}})
 $script:window.Add_Closed({
   Stop-WidgetRuntime
   [Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown()
@@ -1060,3 +1061,12 @@ try{
   [IO.File]::WriteAllText((Join-Path $script:dataDir 'display-error.txt'),$_.Exception.ToString())
   throw
 }finally{Stop-WidgetRuntime}
+
+if($script:restartUpdatePath){
+  $entry=Join-Path $script:restartUpdatePath 'widget.ps1'
+  try{
+    Start-Process (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList ('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$entry+'" -DataDir "'+$script:dataDir+'"') -ErrorAction Stop
+  }catch{
+    [void][Windows.MessageBox]::Show(('启动新版失败，请重新打开挂件。'+[Environment]::NewLine+$_.Exception.Message),'Gemini 娘 · 更新')
+  }
+}

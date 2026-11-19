@@ -18,7 +18,8 @@ try{
     if($tag -notmatch '^\d{1,8}\.\d{1,8}\.\d{1,8}$' -or $info.sha256 -notmatch '^[a-fA-F0-9]{64}$'){throw '更新清单格式无效。'}
     if([version]$tag -le (Get-WidgetVersion $root)){Show-Result "当前已是最新版本 $(Get-WidgetVersion $root)。";return}
     $pending=Get-WidgetUpdatePath $root $DataDir
-    if($pending -and (Get-WidgetVersion $pending) -ge [version]$tag){Show-Result "新版已就绪，退出并重新启动挂件即可使用。";return}
+    $readyMessage='新版已就绪。右键挂件，打开「版本与更新」，点击「立即重启并更新」。'
+    if($pending -and (Get-WidgetVersion $pending) -ge [version]$tag){Show-Result $readyMessage;return}
     if(!$Automatic -and [Windows.MessageBox]::Show("发现 $tag 版，是否下载安装？",'Gemini 娘 · 更新','YesNo') -ne 'Yes'){return}
     $versions=Join-Path $DataDir 'versions'
     $stage=Join-Path $versions ('.stage-'+[guid]::NewGuid().ToString('N'))
@@ -47,7 +48,7 @@ try{
         $base=[IO.Path]::GetFullPath($versions)
         if(([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($stage)) -eq $base) -and ([IO.Path]::GetFileName($stage) -match '^\.stage-[a-f0-9]{32}$')){Remove-Item -LiteralPath $stage -Recurse -Force}
     }
-    Show-Result "$tag 版已就绪，退出并重新启动挂件即可使用。"
+    Show-Result $readyMessage
 }catch{
     [IO.File]::WriteAllText((Join-Path $DataDir 'update-error.txt'),$_.Exception.Message)
     Show-Result ('更新未完成：'+$_.Exception.Message)
