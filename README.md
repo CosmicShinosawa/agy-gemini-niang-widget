@@ -1,10 +1,18 @@
 # Antigravity 的 Gemini 娘挂件
 
+**[下载 Windows 安装器 · GeminiNiang-Setup.exe](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest/download/GeminiNiang-Setup.exe)**
+
+1. 点击上方链接。如果你已经在 GitHub 正式版页面，展开 **Assets**，只下载 **`GeminiNiang-Setup.exe`** 即可。
+2. 双击下载好的文件，点 **「确定」**。安装器会自动装好挂件和 Antigravity 配套插件，保留已有语录和设置。
+3. 安装完成后挂件会自动启动。打开并登录 Antigravity，点击窗口右下角的 Gemini 娘即可查看额度。如果 Antigravity 已经打开，重新启动它即可加载 Customizations 中的配套插件。
+
+安装器不会创建开始菜单快捷方式。以后手动退出挂件后，可以到安装完成提示给出的目录双击 `预览挂件.cmd`。ZIP 和 JSON 供自动更新使用。[查看正式版及全部文件](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest)
+
 <img src="gemini-widget.png" alt="紫发猫耳、金紫异色瞳的 Gemini 娘挂件" width="180">
 
 Gemini 娘是 **ZipZipPipe** 创作的同人角色。该角色形象及本挂件与 Google 官方无关，均未获得 Google 官方认可或授权。挂件使用的 Q 版插画来自网络，由 AI 依照该角色形象改编而成。这张图的制作者、首发页面及公开分发许可仍待确认。[ZipZipPipe 的 B 站空间](https://space.bilibili.com/4168597) · [素材声明](ASSETS.md)
 
-Windows 上双击 `预览挂件.cmd`。点角色打开第一页，再点气泡依次翻页、收起。第一页显示 Gemini 五小时、每周和 Gemini 4 Argon 每周额度，第二页显示 Claude/GPT 五小时和每周额度，第三页显示互动语录。挂件跟随 Antigravity 窗口，切换焦点时留在原位，最小化时一起隐藏。右键可编辑语录与气泡顺序、调节大小、导入角色图片和短 WAV，或开启音乐律动和登录自启。
+点角色打开第一页，再点气泡依次翻页、收起。第一页显示 Gemini 五小时、每周和 Gemini 4 Argon 每周额度，第二页显示 Claude/GPT 五小时和每周额度，第三页显示互动语录。挂件跟随 Antigravity 窗口，切换焦点时留在原位，最小化时一起隐藏。右键可编辑语录与气泡顺序、调节大小、导入角色图片和短 WAV，或开启音乐律动和登录自启。
 
 ## 额度从哪里来
 
@@ -14,9 +22,9 @@ Windows 上双击 `预览挂件.cmd`。点角色打开第一页，再点气泡�
 
 挂件偏好、额度快照和自定义图片保存在当前用户的 `%LOCALAPPDATA%\GeminiNiangWidget`。安装目录中的 `antigravity-plugin` 是可单独使用的 Antigravity 插件，内含只读额度 MCP 和回复结束的 Stop 钩子。按官方的本地安装方式，把该目录放入用户插件目录后，新会话即可发现组件。MCP 返回快照和观察时间。回复结束提醒另由挂件右键菜单开关控制。[Google 插件安装说明](https://antigravity.google/docs/plugins)
 
-## 安装与更新
+## 更新与手动安装
 
-从[正式版下载页](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest)下载 `gemini-niang-widget.zip`，解压到固定目录，双击 `预览挂件.cmd`。如需在 Antigravity 的 Customizations 中使用配套插件，把 `antigravity-plugin` 的内容复制到 `%USERPROFILE%\.gemini\config\plugins\gemini-niang\`，然后重新打开 Antigravity。插件以 Q 版猫娘作图标。
+需要手动安装时，可下载 `gemini-niang-widget.zip`，解压到固定目录并双击 `预览挂件.cmd`，再将 `antigravity-plugin` 的内容复制到 `%USERPROFILE%\.gemini\config\plugins\gemini-niang\`。使用上方 EXE 安装器时，这些步骤会自动完成。配套插件的只读额度 MCP 和回复结束提醒需要本机有 Node.js，桌面挂件的额度气泡可直接使用。
 
 从 0.2.0 起，右键挂件 →「版本与更新」可以检查更新，也可开启「每天自动检查并安装」。自动更新默认关闭。新版从本仓库正式发布页下载，通过 SHA-256 校验和启动自检后即可使用。从 0.2.1 起，下载就绪后可在「版本与更新」中点击「立即重启并更新」。也可以继续使用当前版本，等下次启动时切换。已安装的配套插件随挂件更新。各版本安装在个人数据目录的 `versions` 子目录。若需要回到手动下载的版本，退出挂件、移除个人数据目录的 `active-version.txt`，再启动原目录里的挂件。0.1.0 用户首次升级需要手动下载。
 
