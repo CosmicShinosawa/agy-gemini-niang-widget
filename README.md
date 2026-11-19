@@ -1,5 +1,7 @@
 # Antigravity 的 Gemini 娘挂件
 
+本挂件目前仅支持 **Windows 上的 Antigravity 桌面客户端**。Antigravity IDE（包括 Windows 版）及其他平台均未适配。
+
 **[下载 Windows 安装器 · GeminiNiang-Setup.exe](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest/download/GeminiNiang-Setup.exe)**
 
 1. 点击上方链接。如果你已经在 GitHub 正式版页面，展开 **Assets**，只下载 **`GeminiNiang-Setup.exe`** 即可。
