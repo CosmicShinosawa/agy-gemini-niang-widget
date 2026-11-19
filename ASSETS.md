@@ -2,6 +2,8 @@
 
 ## Gemini 娘角色设定
 
+Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件与 Google 官方无关，均未获得 Google 官方认可或授权。
+
 感谢 B 站创作者 **ZipZipPipe** 创作 Gemini 娘的原形象。根据项目维护者提供的信息，原形象采用**知识共享署名—非商业性使用—相同方式共享 4.0 国际许可协议（CC BY-NC-SA 4.0）**。此处署名及许可说明针对原角色形象。[作者 B 站空间](https://space.bilibili.com/4168597) · [协议中文摘要](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans) · [许可条款全文](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
 
 ## 随挂件分发的 Q 版立绘
@@ -22,3 +24,9 @@
 ## 上游代码
 
 感谢 **T7moris 和 GPT-Niang 贡献者**提供 Windows 挂件、音乐律动、语录和音频实现，感谢 **MeteorNOX** 的 DSH 小鲸鱼提供气泡序列与交互设计。两份 MIT 版权及许可文本随仓库保留。[GPT-Niang 许可](licenses/GPT-Niang-MIT.txt) · [DSH 小鲸鱼许可](licenses/DSH-Whale-MIT.txt)
+
+## 开发与分发声明
+
+维护者 **CosmicShinosawa** 与 **GPT-6.2 Astra** 共同设计和编写了本项目面向 Antigravity 的新增功能与适配代码。挂件通过用户本机运行的 Antigravity 查询额度，在桌面气泡中分组显示结果。窗口跟随、点击动画和音乐律动等功能在上述开源实现的基础上适配。
+
+本仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。项目代码按 MIT 许可分发，上游代码保留各自的版权声明。角色设定、Q 版插画、音效和语录的来源及使用条件见本页各节。[项目代码许可证](LICENSE)
