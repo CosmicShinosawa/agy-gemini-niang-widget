@@ -8,13 +8,13 @@ Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件�
 
 ## 随挂件分发的 Q 版立绘
 
-默认挂件使用一张网络流传的 Gemini 娘 Q 版插画。这张具体插画的画师、首发页面和公开分发许可均待确认。本项目仅记录已知来源与改动，图片的使用条件以原权利人的说明为准。
+默认挂件使用一张网络流传的 Q 版插画，由 AI 依照 ZipZipPipe 创作的 Gemini 娘形象改编而成。这张图的制作者、首发页面和公开分发许可仍待确认。
 
 - [默认立绘](gemini-widget.png)在网络图片的基础上做了透明抠图，并用 AI 补全了右侧发髻和发梢。
-- [插件图标](antigravity-plugin/logo.png)由默认立绘等比缩小并添加透明留白，用于 Antigravity 的 Customizations 面板。
+- [插件图标](antigravity-plugin/logo.png)由默认立绘等比缩小并添加透明留白，用于 Antigravity 的 Customizations 面板。[随插件分发的图标声明](antigravity-plugin/ICON-NOTICE.md)
 - [音乐律动预览](音乐律动-墨镜预览.png)使用同一张立绘，墨镜和音箱由挂件程序绘制并叠加。
 
-如果你是画师或知道原始出处，欢迎通过[项目 Issues](https://github.com/CosmicShinosawa/gemini-niang-widget/issues)提供作品链接、补充署名，或联系维护者更换、移除相关图片。
+如果你是这张插画的制作者、权利人，或知道原始出处，欢迎提供作品链接、补充署名，或联系维护者更换、移除相关图片。[项目 Issues](https://github.com/CosmicShinosawa/gemini-niang-widget/issues)
 
 ## 音效与语录
 
@@ -27,6 +27,6 @@ Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件�
 
 ## 开发与分发声明
 
-维护者 **CosmicShinosawa** 与 **GPT-6.2 Astra** 共同设计和编写了本项目面向 Antigravity 的新增功能与适配代码。挂件通过用户本机运行的 Antigravity 查询额度，在桌面气泡中分组显示结果。窗口跟随、点击动画和音乐律动等功能在上述开源实现的基础上适配。
+本项目以 **GPT-Niang** 的 Windows 挂件为基础，参考 **dsh-whale-widget** 的气泡与吸附交互。维护者 **CosmicShinosawa** 在 **GPT-6.2 Astra** 的协助下完成 Antigravity 移植，让挂件跟随宿主窗口、读取本机额度，并在气泡中按模型分组显示。
 
 本仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。项目代码按 MIT 许可分发，上游代码保留各自的版权声明。角色设定、Q 版插画、音效和语录的来源及使用条件见本页各节。[项目代码许可证](LICENSE)

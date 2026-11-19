@@ -2,7 +2,7 @@
 
 <img src="gemini-widget.png" alt="紫发猫耳、金紫异色瞳的 Gemini 娘挂件" width="180">
 
-Gemini 娘是 **ZipZipPipe** 创作的同人角色。该角色形象及本挂件与 Google 官方无关，均未获得 Google 官方认可或授权。挂件使用的 Q 版插画来自网络，其画师、首发页面及分发许可待确认。[ZipZipPipe 的 B 站空间](https://space.bilibili.com/4168597) · [素材声明](ASSETS.md)
+Gemini 娘是 **ZipZipPipe** 创作的同人角色。该角色形象及本挂件与 Google 官方无关，均未获得 Google 官方认可或授权。挂件使用的 Q 版插画来自网络，由 AI 依照该角色形象改编而成。这张图的制作者、首发页面及公开分发许可仍待确认。[ZipZipPipe 的 B 站空间](https://space.bilibili.com/4168597) · [素材声明](ASSETS.md)
 
 Windows 上双击 `预览挂件.cmd`。点角色打开第一页，再点气泡依次翻页、收起。第一页显示 Gemini 五小时、每周和 Gemini 4 Argon 每周额度，第二页显示 Claude/GPT 五小时和每周额度，第三页显示互动语录。挂件跟随 Antigravity 窗口，切换焦点时留在原位，最小化时一起隐藏。右键可编辑语录与气泡顺序、调节大小、导入角色图片和短 WAV，或开启音乐律动和登录自启。
 
@@ -28,7 +28,7 @@ Windows 上双击 `预览挂件.cmd`。点角色打开第一页，再点气泡�
 
 ## 致谢与许可
 
-维护者 **CosmicShinosawa** 与 **GPT-6.2 Astra** 共同设计和编写了本项目面向 Antigravity 的新增功能与适配代码，包括本机额度读取、分组展示和挂件更新。窗口交互、动画和音乐律动等功能沿用或改编了下列开源项目的实现。仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。[开发与分发声明](ASSETS.md#开发与分发声明)
+本挂件改编自 Codex 的 **GPT-Niang** 和 DeepSeek Harness 的 **dsh-whale-widget**。维护者 **CosmicShinosawa** 在 **GPT-6.2 Astra** 的协助下，将两款挂件的功能移植到 Antigravity，接入本机额度读取，并按模型分组展示额度。仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。[开发与分发声明](ASSETS.md#开发与分发声明)
 
 - Windows 窗口、命中测试、拖动、动画、音频、图库、音乐律动、语录、颜色和 MCP 协议处理改编自 **GPT-Niang 1.3.5**。许可原文及版权声明在 `licenses/GPT-Niang-MIT.txt`。[上游项目](https://github.com/T7moris/GPT-Niang)
 - 气泡顺序、加权分支、图片气泡、吸附和翻转参考 **dsh-whale-widget 0.4.2**。其代码采用 MIT，原版图片、动图、图标、音效另行授权。本项目采用新合成的按压及松开音效。[上游项目和素材说明](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget/blob/main/PROVENANCE.md)

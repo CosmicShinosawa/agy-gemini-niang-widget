@@ -19,3 +19,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+素材范围说明
+
+本项目代码及项目自行合成的 WAV 音效采用上述 MIT 许可。角色设定、默认 Q 版立绘
+（gemini-widget.png）、插件图标（antigravity-plugin/logo.png）及含该立绘的音乐律动
+预览图不在本 MIT 许可范围内。各项素材的来源、使用条件及语录署名见 ASSETS.md。
+单独分发配套插件时，图标说明见插件目录中的 ICON-NOTICE.md。
