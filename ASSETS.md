@@ -10,7 +10,7 @@ Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件�
 
 默认挂件使用一张网络流传的 Q 版插画，由 AI 依照 ZipZipPipe 创作的 Gemini 娘形象改编而成。这张图的制作者、首发页面和公开分发许可仍待确认。
 
-- [默认立绘](gemini-widget.png)在网络图片的基础上做了透明抠图，并用 AI 补全了右侧发髻和发梢。
+- [默认立绘](gemini-widget.png)在网络图片的基础上做了透明抠图，并用 AI 补全右侧发髻和发梢，参照原角色调整了发型、蓝紫渐变发色、金边四芒星头饰和露肩服装。
 - [插件图标](antigravity-plugin/logo.png)由默认立绘等比缩小并添加透明留白，用于 Antigravity 的 Customizations 面板。[随插件分发的图标声明](antigravity-plugin/ICON-NOTICE.md)
 - [音乐律动预览](音乐律动-墨镜预览.png)使用同一张立绘，墨镜和音箱由挂件程序绘制并叠加。
 
