@@ -14,6 +14,18 @@ Windows 上双击 `预览挂件.cmd`。点角色打开第一页，再点气泡�
 
 挂件偏好、额度快照和自定义图片保存在当前用户的 `%LOCALAPPDATA%\GeminiNiangWidget`。安装目录中的 `antigravity-plugin` 是可单独使用的 Antigravity 插件，内含只读额度 MCP 和回复结束的 Stop 钩子。按官方的本地安装方式，把该目录放入用户插件目录后，新会话即可发现组件。MCP 返回快照和观察时间。回复结束提醒另由挂件右键菜单开关控制。[Google 插件安装说明](https://antigravity.google/docs/plugins)
 
+## 安装与更新
+
+从[正式版下载页](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest)下载 `gemini-niang-widget.zip`，解压到固定目录，双击 `预览挂件.cmd`。如需在 Antigravity 的 Customizations 中使用配套插件，把 `antigravity-plugin` 的内容复制到 `%USERPROFILE%\.gemini\config\plugins\gemini-niang\`，然后重新打开 Antigravity。插件以 Q 版猫娘作图标。
+
+从 0.2.0 起，右键挂件 →「版本与更新」可以检查更新，也可开启「每天自动检查并安装」。自动更新默认关闭。新版从本仓库正式发布页下载，通过 SHA-256 和启动自检后，下次启动挂件时生效；已安装的配套插件随之更新。各版本安装在个人数据目录的 `versions` 子目录。若需要回到手动下载的版本，退出挂件、移除个人数据目录的 `active-version.txt`，再启动原目录里的挂件。0.1.0 用户首次升级需要手动下载。
+
+在「声音与点击」中可选原版加响、星铃，或导入自己的 WAV。在「编辑我的语录」中点「恢复内置语录」可切换到本版的 45 条台词。
+
+### Antigravity 兼容性
+
+2026-11-19 在 Windows 桌面版 Antigravity **2.33.0** 上实测，本机额度接口返回了 Gemini、Gemini 4 Argon 和 Claude/GPT 共五项额度。配套插件遵循公开的插件清单格式；后台额度读取依赖桌面版的本机接口。宿主升级可能改变接口字段或窗口行为。若后台源失效，可打开 Settings → Models 后查看气泡的读取来源及时间，判断是否已切换至设置页或沿用旧快照。
+
 ## 致谢与许可
 
 - Windows 窗口、命中测试、拖动、动画、音频、图库、音乐律动、语录、颜色和 MCP 协议处理改编自 **GPT-Niang 1.3.5**。许可原文及版权声明在 `licenses/GPT-Niang-MIT.txt`。[上游项目](https://github.com/T7moris/GPT-Niang)

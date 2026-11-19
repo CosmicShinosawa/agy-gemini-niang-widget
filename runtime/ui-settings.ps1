@@ -171,7 +171,9 @@ function Initialize-WidgetSettingsMenu {
   $volume.Slider.Add_ValueChanged({param($sender,$event)if($script:settingsMenuSync){return};$script:soundVolume=[Math]::Round($sender.Value,2);$script:settingsMenuUi.VolumeText.Text=([Math]::Round($sender.Value*100)).ToString()+'%';Set-WidgetAudioVolume;Save-Settings})
   Add-SettingsPanel $volume.Panel
   Add-SettingsDivider
-  $script:settingsMenuUi.AudioBuiltin=Add-SettingsAction '使用内置音效' {Invoke-WidgetAudioAction 'builtin'} -Checkable -ReturnItem
+  $script:settingsMenuUi.AudioBuiltin=Add-SettingsAction '原版加响（默认）' {Invoke-WidgetAudioAction 'builtin'} -Checkable -ReturnItem
+  $script:settingsMenuUi.AudioStar=Add-SettingsAction '星铃' {Invoke-WidgetAudioAction 'star-bell'} -Checkable -ReturnItem
+  $script:settingsMenuUi.AudioStar.Uid='radio'
   $script:settingsMenuUi.AudioCustom=Add-SettingsAction '使用自定义音效' {Invoke-WidgetAudioAction 'custom'} -Checkable -ReturnItem
   $script:settingsMenuUi.AudioBuiltin.Uid='radio';$script:settingsMenuUi.AudioCustom.Uid='radio'
   foreach($phase in @(@{id='press';label='自定义按下音效'},@{id='release';label='自定义松开音效'})){
@@ -222,6 +224,13 @@ function Initialize-WidgetSettingsMenu {
   $script:settingsMenuUi.Mirror=Add-SettingsAction '移到左侧时角色翻转' {param($sender,$event)$script:mirrorOnLeft=$sender.IsChecked;Set-Facing;Save-Settings} -Checkable -ReturnItem
   $script:settingsMenuUi.Autostart=Add-SettingsAction '登录后随反重力启动' {param($sender,$event)Set-WidgetAutostart $sender.IsChecked} -Checkable -ReturnItem
   Add-SettingsAction '读取额度页' {Request-Refresh;Show-Quota}
+  Add-SettingsSubmenu ('版本与更新 · '+$script:widgetVersion) {
+    Add-SettingsAction '检查更新…' {Start-WidgetUpdate}
+    $script:settingsMenuUi.AutoUpdate=Add-SettingsAction '每天自动检查并安装' {param($sender,$event)
+      if($sender.IsChecked){[IO.File]::WriteAllText($script:autoUpdateFlag,'enabled');$script:nextUpdateProbe=0}
+      elseif([IO.File]::Exists($script:autoUpdateFlag)){[IO.File]::Delete($script:autoUpdateFlag)}
+    } -Checkable -ReturnItem
+  }
   Add-SettingsDivider
   $exit=Add-SettingsAction '退出 Gemini 娘' {Exit-WidgetForSession} -ReturnItem;$exit.Foreground=[Windows.Media.BrushConverter]::new().ConvertFromString('#A1788D')
   $script:context.Add_Opened({Pause-CompletionNotification;Reset-WidgetAutoQuoteSchedule;Update-WidgetSettingsMenu;Set-WidgetMenuBounds;Position-WidgetMenuToHost})
@@ -269,6 +278,7 @@ function Update-WidgetSettingsMenu{
     $script:settingsMenuUi.Snap.IsChecked=$script:snapEdges
     $script:settingsMenuUi.Mirror.IsChecked=$script:mirrorOnLeft
     $script:settingsMenuUi.MusicEnabled.IsChecked=Test-WidgetMusicActive
+    $script:settingsMenuUi.AutoUpdate.IsChecked=[IO.File]::Exists($script:autoUpdateFlag)
     $script:settingsMenuUi.Completion.IsChecked=$script:completionNotificationsEnabled
     $script:settingsMenuUi.AutoQuoteEnabled.IsChecked=$script:autoQuoteEnabled
     foreach($choice in $script:settingsMenuUi.AutoQuoteIntervals){$choice.IsChecked=[int]$choice.Tag-eq $script:autoQuoteIntervalSeconds}
@@ -288,6 +298,7 @@ function Update-WidgetSettingsMenu{
     $script:settingsMenuUi.ColorPause.IsChecked=$script:colorPaused;$script:settingsMenuUi.ColorPause.IsEnabled=$script:colorMode-ne 'original'
     $audio=Get-WidgetAudioStatus
     $script:settingsMenuUi.AudioBuiltin.IsChecked=$audio.mode-eq 'builtin';$script:settingsMenuUi.AudioCustom.IsChecked=$audio.mode-eq 'custom'
+    $script:settingsMenuUi.AudioStar.IsChecked=$audio.mode-eq 'star-bell'
     foreach($phase in @('press','release')){
       $entry=$audio[$phase]
       $script:settingsMenuUi['AudioName_'+$phase].Header=if($entry.configured){if($entry.available){$entry.name}else{'文件不可用：'+$entry.name}}else{'未设置（无声）'}

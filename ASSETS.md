@@ -9,14 +9,15 @@
 默认挂件使用一张网络流传的 Gemini 娘 Q 版插画。这张具体插画的画师、首发页面和公开分发许可均待确认。本项目仅记录已知来源与改动，图片的使用条件以原权利人的说明为准。
 
 - [默认立绘](gemini-widget.png)在网络图片的基础上做了透明抠图，并用 AI 补全了右侧发髻和发梢。
+- [插件图标](antigravity-plugin/logo.png)由默认立绘等比缩小并添加透明留白，用于 Antigravity 的 Customizations 面板。
 - [音乐律动预览](音乐律动-墨镜预览.png)使用同一张立绘，墨镜和音箱由挂件程序绘制并叠加。
 
 如果你是画师或知道原始出处，欢迎通过[项目 Issues](https://github.com/CosmicShinosawa/gemini-niang-widget/issues)提供作品链接、补充署名，或联系维护者更换、移除相关图片。
 
 ## 音效与语录
 
-- [按压](assets/press.wav)和[松开](assets/release.wav)两段短音效为本项目合成，随代码按 [MIT 许可](LICENSE) 分发。
-- [默认语录](assets/quotes.json)共 48 条，由维护者与 Gemini 在已有语录基础上选编、增写。其中 25 条与 GPT-Niang 1.3.5 内置语录文字一致，包括由 DSH 小鲸鱼传入的 7 条。感谢两边的台词作者。[GPT-Niang 语录](https://github.com/T7moris/GPT-Niang/blob/main/gpt-niang-usage/assets/quotes.json) · [DSH 七条原文及许可](licenses/upstream-quotes.txt)
+- 原版加响的[按压](assets/press.wav)、[松开](assets/release.wav)与星铃的[按压](assets/star-bell-press.wav)、[松开](assets/star-bell-release.wav)均由本项目合成，按 [MIT 许可](LICENSE) 分发。
+- [默认语录](assets/quotes.json)共 45 条，由维护者与 Gemini 在已有语录基础上选编、增写。其中 18 条与 GPT-Niang 1.3.5 内置语录文字一致，包括由 DSH 小鲸鱼传入的 7 条。感谢两边的台词作者。[GPT-Niang 语录](https://github.com/T7moris/GPT-Niang/blob/main/gpt-niang-usage/assets/quotes.json) · [DSH 七条原文及许可](licenses/upstream-quotes.txt)
 
 ## 上游代码
 

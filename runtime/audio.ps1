@@ -145,7 +145,7 @@ function Read-WidgetAudioPreferences([string]$DataDir) {
     try{
         if((Get-Item -LiteralPath $file).Length-gt 16KB){throw 'Invalid audio preferences'}
         $saved=Get-Content -LiteralPath $file -Raw -Encoding UTF8|ConvertFrom-Json
-        if($saved.version-ne 1 -or $saved.mode-notin @('builtin','custom')){throw 'Invalid audio preferences'}
+        if($saved.version-ne 1 -or $saved.mode-notin @('builtin','star-bell','custom')){throw 'Invalid audio preferences'}
         $prefs.mode=[string]$saved.mode
         foreach($slot in @('press','release')){
             $entry=$saved.$slot
@@ -189,7 +189,11 @@ function New-WidgetAudioState([string]$AppDir,[string]$DataDir,$Preferences) {
         Duration=0.0;Pressing=$false;PressEnded=$true;PendingRelease=$false;ReleasePlayed=$true}
     try{
         foreach($slot in @('press','release')){
-            $source=if($Preferences.mode-eq 'builtin'){Join-Path $AppDir ('assets/'+$slot+'.wav')}else{Get-WidgetCustomAudioPath $audio $slot}
+            $source=switch($Preferences.mode){
+                'builtin'{Join-Path $AppDir "assets/$slot.wav"}
+                'star-bell'{Join-Path $AppDir "assets/star-bell-$slot.wav"}
+                'custom'{Get-WidgetCustomAudioPath $audio $slot}
+            }
             $audio[$slot+'Path']=$source
             if(!$source){continue}
             try{
@@ -198,7 +202,7 @@ function New-WidgetAudioState([string]$AppDir,[string]$DataDir,$Preferences) {
                 $audio[$slot]=$loaded
                 if($slot-eq 'press'){$audio.Duration=$duration}
             }catch{
-                if($Preferences.mode-eq 'builtin'){throw}
+                if($Preferences.mode-ne 'custom'){throw}
                 $audio.Errors[$slot]='文件不可用，请重新选择。'
             }
         }
@@ -342,7 +346,7 @@ function Import-WidgetAudio([ValidateSet('press','release')][string]$Slot,[strin
         if(!$committed -and [IO.File]::Exists($target)){[IO.File]::Delete($target)}
     }
 }
-function Set-WidgetAudioMode([ValidateSet('builtin','custom')][string]$Mode) {
+function Set-WidgetAudioMode([ValidateSet('builtin','star-bell','custom')][string]$Mode) {
     $prefs=Copy-WidgetAudioPreferences $script:gptNiangAudio.Preferences;$prefs.mode=$Mode
     Set-WidgetAudioPreferences $prefs;Remove-WidgetUnusedAudioFiles $script:gptNiangAudio $prefs
 }
@@ -377,6 +381,7 @@ function Invoke-WidgetAudioAction([string]$Action,[string]$Slot) {
             'import'{$source=Select-WidgetAudioFile;if($source){try{$null=Import-WidgetAudio $Slot $source}catch{throw ([IO.Path]::GetFileName($source)+[Environment]::NewLine+$_.Exception.Message)}}}
             'clear'{Clear-WidgetAudioSlot $Slot}
             'builtin'{Set-WidgetAudioMode 'builtin'}
+            'star-bell'{Set-WidgetAudioMode 'star-bell'}
             'custom'{Set-WidgetAudioMode 'custom'}
             'preview'{Invoke-WidgetAudioPreview $Slot}
         }

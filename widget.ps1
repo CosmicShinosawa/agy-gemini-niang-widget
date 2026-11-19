@@ -1,5 +1,13 @@
 ﻿param([switch]$CheckOnly,[switch]$Preview,[string]$AppDir=$PSScriptRoot,[string]$DataDir=(Join-Path $env:LOCALAPPDATA "GeminiNiangWidget"))
 $ErrorActionPreference='Stop'
+. (Join-Path $AppDir 'runtime\update.ps1')
+if(!$CheckOnly -and !$Preview){
+  $updated=Get-WidgetUpdatePath $AppDir $DataDir
+  if($updated){& (Join-Path $updated 'widget.ps1') -AppDir $updated -DataDir $DataDir;return}
+}
+$script:widgetVersion=Get-WidgetVersion $AppDir
+$script:autoUpdateFlag=Join-Path $DataDir 'auto-update.enabled'
+$script:nextUpdateProbe=0
 $script:appDir=$AppDir
 $script:config=@{nodePath=(Get-Command node -ErrorAction SilentlyContinue).Source}
 $script:dataDir=$DataDir
@@ -730,11 +738,14 @@ if($Preview){
   $encoder.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($render))
   $stream=[IO.File]::Create((Join-Path $script:appDir 'preview.png'));try{$encoder.Save($stream)}finally{$stream.Dispose()};return
 }
-$mutexKey='Local\GeminiNiangWidget_'+([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($script:appDir))).Replace('/','_').Replace('+','-')
+$mutexKey='Local\GeminiNiangWidget_'+([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([IO.Path]::GetFullPath($DataDir).ToUpperInvariant()))).Replace('/','_').Replace('+','-')
 $script:mutex=[Threading.Mutex]::new($false,$mutexKey);$script:mutexOwned=$false
 try{$script:mutexOwned=$script:mutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$script:mutexOwned=$true}
 if(!$script:mutexOwned){Request-Refresh;$script:mutex.Dispose();return}
 Initialize-WidgetAudio -AppDir $script:appDir -DataDir $script:dataDir
+try{Sync-WidgetPlugin $script:appDir (Join-Path $env:USERPROFILE '.gemini\config\plugins\gemini-niang')}catch{
+  [IO.File]::WriteAllText((Join-Path $script:dataDir 'plugin-sync-error.txt'),$_.Exception.Message)
+}
 # A stop request written while this GUI was still starting must win. Only a
 # recent flag is honoured (stale leftovers are removed); the flag is removed
 # after honoring so a later manual start is not blocked.
@@ -924,6 +935,7 @@ function Tick-Widget {
   Tick-Scene $now
   if($now-$script:lastPresence-ge 1000 -and (Test-Path -LiteralPath (Join-Path $script:dataDir 'stop.flag'))){$script:window.Close();return}
   Ensure-QuotaWorker $now
+  Test-WidgetUpdateDue $now
   if($script:completionTemporary){
     if($script:occlusionRecovery){$script:occlusionRecovery.Configure([IntPtr]::Zero,$false)}
     if($now-$script:lastPresence-ge 1000){Write-WidgetPresence $true $now;$script:lastPresence=$now;Update-Quota;Read-DisplayRequest;Tick-CompletionNotifications $true}

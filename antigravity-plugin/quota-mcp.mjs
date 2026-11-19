@@ -2,6 +2,7 @@
 import path from 'node:path';
 import readline from 'node:readline';
 const send=m=>process.stdout.write(JSON.stringify(m)+'\n');
+const {version}=JSON.parse(fs.readFileSync(new URL('./plugin.json',import.meta.url),'utf8').replace(/^\uFEFF/,''));
 const tool={name:'get_antigravity_usage',description:'读取 Gemini 娘最近一次取得的 Antigravity 分组额度及重置时间。数据含来源、观察时间与刷新状态。',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:true}};
 async function handle(m){
   if(!m || typeof m!=='object' || Array.isArray(m) || typeof m.method!=='string'){send({jsonrpc:'2.0',id:null,error:{code:-32600,message:'Invalid Request'}});return;}
@@ -9,7 +10,7 @@ async function handle(m){
   try{
     let result;
     switch(m.method){
-      case 'initialize': result={protocolVersion:m.params?.protocolVersion??'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'gemini-niang',version:'0.1.0'}};break;
+      case 'initialize': result={protocolVersion:m.params?.protocolVersion??'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'gemini-niang',version}};break;
       case 'ping':result={};break;
       case 'tools/list':result={tools:[tool]};break;
       case 'tools/call':{
