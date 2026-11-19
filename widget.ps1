@@ -159,6 +159,7 @@ try{$settings=Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | Conve
   if($settings.characterId-is [string]){$script:characterId=$settings.characterId}
 }catch{$script:settingsLoadFailed=$true}
 $script:quotaPage=1
+$script:quotaPages=@()
 $script:snapEdges=$settings.snapEdges -ne $false
 $script:mirrorOnLeft=$settings.mirrorOnLeft -ne $false
 Initialize-WidgetAutoQuoteSettings $settings
@@ -469,15 +470,14 @@ function Update-BubbleTooltip {
         }
       }
     }
-    # If an individual cap coexists with both timed windows, the second row
-    # shows the shortest timed window consistently; retain all others in the tooltip.
+    # Include quotas on the other pages in the hover details.
     $shown=@((Get-QuotaRows)|ForEach-Object{$_.window})
     foreach($q in @($script:status.windows|Where-Object{$null-ne $_ -and $_ -notin $shown})){
       $label=Get-QuotaWindowLabel $q ''
       $detail=if($q.resetsAt){Format-ResetTime ([long]$q.resetsAt) ([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())}else{'未提供重置时间'}
       $parts+=$q.group+' '+$label+'：已用 '+([double]$q.used).ToString('0.#')+'%，'+$detail
     }
-    ($parts+@($script:ui.Status.Text))-join "`n"
+    (@($script:ui.Header.Text)+$parts+@($script:ui.Status.Text))-join "`n"
   }
   if(!$script:bubbleTooltipText){
     $script:bubbleTooltipText=New-Object Windows.Controls.TextBlock
@@ -515,7 +515,7 @@ function Switch-Scene([string]$mode){
 }
 function Next-Bubble {
   if($script:collapsed){return}
-  if($script:bubbleMode -eq 'quota' -and $script:quotaPage -eq 1){Switch-QuotaPage;return}
+  if($script:bubbleMode -eq 'quota' -and $script:quotaPage -lt $script:quotaPages.Count){Switch-QuotaPage;return}
   if($script:sequenceIndex -ge 0){Show-SequenceStep ($script:sequenceIndex+1)}
   elseif($script:bubbleMode-eq 'quota'){Switch-Scene 'quote'}else{Hide-Quota}
 }
@@ -650,6 +650,7 @@ function Get-QuotaWindowLabel($Window,[string]$Fallback){
   if(!$Window){return $Fallback}
   if($Window.label){return $Window.label}
   if($Window.kind-eq 'individual'){return '个人额度'}
+  if(!$Window.minutes){return $Fallback}
   $minutes=[long]$Window.minutes
   if($minutes-eq 300){return '5 小时'}
   if($minutes-eq 10080){return '每周'}
@@ -659,17 +660,42 @@ function Get-QuotaWindowLabel($Window,[string]$Fallback){
 }
 function Switch-QuotaPage {
   if($script:collapsed -or $script:bubbleMode -ne 'quota'){Show-Quota;return}
-  $script:quotaPage=3-$script:quotaPage
+  $script:quotaPage=1+($script:quotaPage % [Math]::Max(1,$script:quotaPages.Count))
   Update-Quota;Restart-SceneTtl
 }
-function Get-QuotaRows {
-  $group=if($script:quotaPage -eq 2){'Claude and GPT models'}else{'Gemini Models'}
-  $windows=@($script:status.windows | Where-Object {$_.group -eq $group})
-  @{prefix='Short';label='5 小时';window=($windows | Where-Object minutes -eq 300 | Select-Object -First 1)}
-  @{prefix='Week';label='每周';window=($windows | Where-Object minutes -eq 10080 | Select-Object -First 1)}
-  if($script:quotaPage -eq 1){
-    @{prefix='Argon';label='Gemini 4 Argon · 每周';window=($script:status.windows | Where-Object {$_.group -match 'Argon' -and $_.minutes -eq 10080} | Select-Object -First 1)}
+function New-QuotaPages($windows) {
+  $groups=[ordered]@{}
+  foreach($q in $windows){
+    if(!$q.group){continue}
+    if(!$groups.Contains($q.group)){$groups[$q.group]=[Collections.ArrayList]::new()}
+    [void]$groups[$q.group].Add($q)
   }
+  $gemini='Gemini Models';$argon='Gemini 4 Argon';$partners='Claude and GPT models'
+  $known=@($gemini,$argon,$partners)
+  $prefixes=@('Short','Week','Argon')
+  $proLayout=$groups.Contains($gemini) -and $groups.Contains($argon) -and $groups.Contains($partners)
+  $order=@($groups.Keys)
+  if($proLayout){$order=@($gemini,$partners)+@($order | Where-Object {$_ -notin $known})}
+  foreach($group in $order){
+    $title=switch($group){$gemini{'Gemini'} $partners{'Claude/GPT'} default{$group}}
+    $members=@($groups[$group])
+    if($proLayout -and $group -in @($gemini,$partners)){
+      $members=@($members | Where-Object minutes -eq 300)+@($members | Where-Object minutes -eq 10080)+@($members | Where-Object {$_.minutes -notin @(300,10080)})
+    }
+    if($proLayout -and $group -eq $gemini){$members+=@($groups[$argon])}
+    $rows=@()
+    foreach($q in $members){
+      $label=Get-QuotaWindowLabel $q '额度'
+      if($q.group -ne $group){$label=$q.group+' · '+$label}
+      $rows+=@{prefix=$prefixes[$rows.Count];label=$label;window=$q}
+      if($rows.Count -eq $prefixes.Count){[pscustomobject]@{title=$title;rows=$rows};$rows=@()}
+    }
+    if($rows.Count){[pscustomobject]@{title=$title;rows=$rows}}
+  }
+}
+function Get-QuotaRows {
+  if($script:quotaPages.Count){$script:quotaPages[$script:quotaPage-1].rows}
+  else{@{prefix='Short';label='额度';window=$null}}
 }
 function Set-ResetTimeMode([string]$mode,[long]$nowMilliseconds){
   $script:resetTimeMode=$mode
@@ -682,11 +708,23 @@ function Set-ResetTimeMode([string]$mode,[long]$nowMilliseconds){
 function Update-Quota {
   $file=Join-Path $script:dataDir 'status.json'
   try{$stamp=[IO.File]::GetLastWriteTimeUtc($file).Ticks
-    if(!(Test-Path -LiteralPath $file)){$script:status=$null;$script:statusStamp=0}
-    elseif($stamp-ne $script:statusStamp){$script:status=Get-Content -LiteralPath $file -Raw -Encoding UTF8 | ConvertFrom-Json;$script:statusStamp=$stamp}
-  }catch{$script:status=$null;$script:statusStamp=0}
+    if($stamp-ne $script:statusStamp){
+      $next=Get-Content -LiteralPath $file -Raw -Encoding UTF8 -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+      $pages=@(New-QuotaPages $next.windows)
+      if(!$next -or (!$pages.Count -and ($next.queryOk -or $script:quotaPages.Count))){throw 'Snapshot unavailable'}
+      $script:status=$next;$script:quotaPages=$pages;$script:statusStamp=$stamp
+      $script:quotaPage=[Math]::Min($script:quotaPage,[Math]::Max(1,$pages.Count))
+    }
+  }catch{
+    if($script:status){$script:status|Add-Member -Force NoteProperty queryOk $false;$script:status|Add-Member -Force NoteProperty error '额度快照读取失败'}
+    $script:statusStamp=0
+  }
   $now=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-  foreach($row in (Get-QuotaRows)){
+  $rows=@(Get-QuotaRows)
+  foreach($slot in @('Short','Week','Argon')){
+    if($slot -notin $rows.prefix){$script:ui[$slot+'Row'].Visibility='Collapsed';$script:ui[$slot+'Reset'].Text=''}
+  }
+  foreach($row in $rows){
     $prefix=$row.prefix;$q=$row.window
     $script:ui[$prefix+'Label'].Text=$row.label
     $script:ui[$prefix+'Row'].Visibility='Visible'
@@ -700,16 +738,15 @@ function Update-Quota {
     $expired=$hasReset -and [double]$q.resetsAt-le $now -and [double]$q.resetsAt*1000 -gt $script:status.observedAt
     $used=([double]$q.used).ToString('0.#');$left=([double]$q.remaining).ToString('0.#')
     $script:ui[$prefix+'Used'].Text=if($expired){"上次 $used%"}else{"已用 $used%"}
-    $script:ui[$prefix+'Left'].Text=if($expired){'—'}else{"$left%"}
+    $script:ui[$prefix+'Left'].Text=if($expired -and $script:status.queryOk -ne $false){'—'}else{"$left%"}
     $script:ui[$prefix+'Reset'].Text=if($hasReset){Format-ResetDisplay ([long]$q.resetsAt) $now}else{'未提供重置时间'}
     if($hasReset){$script:ui[$prefix+'Reset'].ToolTip='本机时间 '+[DateTimeOffset]::FromUnixTimeSeconds([long]$q.resetsAt).ToLocalTime().ToString('yyyy-MM-dd HH:mm zzz')+' 重置 · '+(Reset-Label ([double]$q.resetsAt-$now))}
-    $script:ui[$prefix+'Bar'].Width=if($expired){0}else{184*[double]$q.remaining/100}
+    $script:ui[$prefix+'Bar'].Width=if($expired -and $script:status.queryOk -ne $false){0}else{184*[double]$q.remaining/100}
     $color=if($expired){'#B3A7C0'}elseif([double]$q.used-ge 90){'#D77659'}elseif([double]$q.used-ge 75){'#D0A051'}else{'#9B86C1'}
     $script:ui[$prefix+'Bar'].Background=[Windows.Media.BrushConverter]::new().ConvertFromString($color)
     $valueColor=if($expired){'#95889F'}elseif([double]$q.used-ge 90){'#B74839'}elseif([double]$q.used-ge 75){'#A06C1C'}else{'#745A98'}
     $script:ui[$prefix+'Left'].Foreground=[Windows.Media.BrushConverter]::new().ConvertFromString($valueColor)
   }
-  if($script:quotaPage -eq 2){$script:ui.ArgonRow.Visibility='Collapsed'}
   $age=if($script:status.observedAt){$now-[Math]::Floor([double]$script:status.observedAt/1000)}else{0}
   $dot='#9B86C1'
   if(!$script:status){$script:ui.Status.Text='请打开设置 → Models';$dot='#C5A96F'}
@@ -722,7 +759,8 @@ function Update-Quota {
   }
   $script:ui.LiveDot.Fill=[Windows.Media.BrushConverter]::new().ConvertFromString($dot)
   $script:ui.Status.ToolTip=$script:ui.Status.Text
-  $title=if($script:quotaPage -eq 1){'Gemini  1/3'}else{'Claude/GPT  2/3'}
+  $title=if($script:quotaPages.Count){$script:quotaPages[$script:quotaPage-1].title}else{'额度'}
+  if($script:quotaPages.Count -gt 1){$title+="  $($script:quotaPage)/$($script:quotaPages.Count)"}
   $script:ui.Header.Text=if($script:status.observedAt -and ($script:status.error -or $age -gt 180)){"上次 · $title"}else{$title}
   $script:ui.Header.ToolTip=if($script:status.planLabel){'当前套餐：'+$script:status.planLabel+' · 重置时间按本机时间显示'}else{'重置时间按本机时间显示'}
   Update-BubbleTooltip

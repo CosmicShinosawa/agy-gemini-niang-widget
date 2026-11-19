@@ -18,7 +18,7 @@ try{
         $writer.Write([int]22)
         $writer.Write($logo)
     }finally{$writer.Dispose()}
-    & $compiler /nologo /target:winexe /platform:anycpu /codepage:65001 /reference:System.Windows.Forms.dll "/win32icon:$icon" "/out:$exe" "/resource:$zip,widget.zip" "/resource:$PSScriptRoot\install-widget.ps1,install-widget.ps1" (Join-Path $PSScriptRoot 'WidgetSetup.cs')
+    & $compiler /nologo /target:winexe /platform:anycpu /codepage:65001 /reference:System.Windows.Forms.dll "/win32icon:$icon" "/win32manifest:$PSScriptRoot\WidgetSetup.manifest" "/out:$exe" "/resource:$zip,widget.zip" "/resource:$PSScriptRoot\install-widget.ps1,install-widget.ps1" (Join-Path $PSScriptRoot 'WidgetSetup.cs')
     if($LASTEXITCODE){throw 'Windows installer compilation failed.'}
 }finally{if([IO.File]::Exists($icon)){[IO.File]::Delete($icon)}}
 Get-Item -LiteralPath $exe

@@ -42,7 +42,7 @@
         </Grid>
         <StackPanel x:Name="ShortRow" Margin="0,1,0,0" IsHitTestVisible="False">
           <Grid Height="18">
-            <TextBlock x:Name="ShortLabel" Text="5 小时" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
+            <TextBlock x:Name="ShortLabel" Margin="0,0,48,0" TextTrimming="CharacterEllipsis" Text="5 小时" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
             <TextBlock x:Name="ShortLeft" Text="—" HorizontalAlignment="Right" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" Foreground="#745A98"/>
           </Grid>
           <Border Height="2" Background="#EAE4F3" CornerRadius="1"><Border x:Name="ShortBar" Background="#AA95CD" Width="0" HorizontalAlignment="Left"/></Border>
@@ -51,7 +51,7 @@
         </StackPanel>
         <StackPanel x:Name="WeekRow" Margin="0,1,0,0" IsHitTestVisible="False">
           <Grid Height="18">
-            <TextBlock x:Name="WeekLabel" Text="每周" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
+            <TextBlock x:Name="WeekLabel" Margin="0,0,48,0" TextTrimming="CharacterEllipsis" Text="每周" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
             <TextBlock x:Name="WeekLeft" Text="—" HorizontalAlignment="Right" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" Foreground="#745A98"/>
           </Grid>
           <Border Height="2" Background="#EAE4F3" CornerRadius="1"><Border x:Name="WeekBar" Background="#AA95CD" Width="0" HorizontalAlignment="Left"/></Border>
@@ -60,7 +60,7 @@
         </StackPanel>
         <StackPanel x:Name="ArgonRow" Margin="0,1,0,0" IsHitTestVisible="False">
           <Grid Height="18">
-            <TextBlock x:Name="ArgonLabel" Text="Gemini 4 Argon · 每周" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
+            <TextBlock x:Name="ArgonLabel" Margin="0,0,48,0" TextTrimming="CharacterEllipsis" Text="Gemini 4 Argon · 每周" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
             <TextBlock x:Name="ArgonLeft" Text="—" HorizontalAlignment="Right" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" Foreground="#745A98"/>
           </Grid>
           <Border Height="2" Background="#EAE4F3" CornerRadius="1"><Border x:Name="ArgonBar" Background="#AA95CD" Width="0" HorizontalAlignment="Left"/></Border>
