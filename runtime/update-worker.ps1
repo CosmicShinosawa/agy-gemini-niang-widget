@@ -7,6 +7,14 @@ Add-Type -AssemblyName PresentationFramework,System.IO.Compression.FileSystem
 $repo='https://github.com/CosmicShinosawa/gemini-niang-widget/releases'
 $lock=[Threading.Mutex]::new($false,'Local\GeminiNiangReleaseUpdate')
 $held=$false
+function Get-WidgetFileSha256([string]$Path){
+    $sha=[Security.Cryptography.SHA256]::Create()
+    try{
+        $stream=[IO.File]::OpenRead($Path)
+        try{return [BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-','')}
+        finally{$stream.Dispose()}
+    }finally{$sha.Dispose()}
+}
 function Show-Result([string]$Text){if(!$Automatic){[void][Windows.MessageBox]::Show($Text,'Gemini 娘 · 更新')}}
 try{
     try{$held=$lock.WaitOne(0)}catch [Threading.AbandonedMutexException]{$held=$true}
@@ -27,7 +35,7 @@ try{
     try{
         $zip=Join-Path $stage 'package.zip'
         Invoke-WebRequest "$repo/download/v$tag/gemini-niang-widget.zip" -UseBasicParsing -OutFile $zip -TimeoutSec 90
-        if((Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash -ne $info.sha256){throw '更新包 SHA-256 校验失败。'}
+        if((Get-WidgetFileSha256 $zip) -ne $info.sha256){throw '更新包 SHA-256 校验失败。'}
         $expanded=Join-Path $stage 'package'
         [IO.Compression.ZipFile]::ExtractToDirectory($zip,$expanded)
         if((Get-WidgetVersion $expanded) -ne [version]$tag){throw '更新包版本与清单不符。'}
@@ -37,7 +45,7 @@ try{
         if([IO.Directory]::Exists($target)){
             foreach($file in Get-ChildItem -LiteralPath $expanded -File -Recurse){
                 $existing=Join-Path $target $file.FullName.Substring($expanded.Length+1)
-                if(![IO.File]::Exists($existing) -or (Get-FileHash -LiteralPath $existing).Hash -ne (Get-FileHash -LiteralPath $file.FullName).Hash){throw '已有版本目录与更新包不同，请检查后重试。'}
+                if(![IO.File]::Exists($existing) -or (Get-WidgetFileSha256 $existing) -ne (Get-WidgetFileSha256 $file.FullName)){throw '已有版本目录与更新包不同，请检查后重试。'}
             }
         }else{[IO.Directory]::Move($expanded,$target)}
         $pointer=Join-Path $DataDir 'active-version.txt'
