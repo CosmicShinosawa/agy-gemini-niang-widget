@@ -1040,7 +1040,7 @@ function Tick-Widget {
       if($script:followHost -and $script:bottomSnapped -and $script:window.IsVisible -and !(Test-WidgetMusicActive)){$script:offsetBottom=Get-WidgetDockedOffset $frame $dpi}
       $desiredY=if($script:followHost){$frame.Bottom-$h-$script:offsetBottom*$dpi}else{$script:desktopTop}
       $y=[int]$desiredY
-      if(!$script:followHost){
+      if(!$script:followHost -and !$showWidget){
         $x=Limit-WidgetHorizontalPosition $frame $dpi $x
         $y=Limit-WidgetVerticalPosition $frame $dpi $desiredY
       }
