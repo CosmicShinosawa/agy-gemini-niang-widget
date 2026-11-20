@@ -389,19 +389,19 @@ public sealed class GptMusicVisual : IDisposable {
             var imageBrush=new ImageBrush(girl.Source){Stretch=Stretch.Uniform,ViewportUnits=BrushMappingMode.Absolute,Viewport=imageRect};
             dc.PushOpacity(.27);dc.PushOpacityMask(imageBrush);dc.DrawRectangle(flow,null,imageRect);dc.Pop();dc.Pop();
             if(glasses){
-                var face=new RadialGradientBrush();face.Center=face.GradientOrigin=new Point((alpha.Left+alpha.Width*554/1219)/girl.Width,(alpha.Top+alpha.Height*808/1290)/girl.Height);
+                var face=new RadialGradientBrush();face.Center=face.GradientOrigin=new Point((alpha.Left+alpha.Width*511/1117)/girl.Width,(alpha.Top+alpha.Height*742/1194)/girl.Height);
                 face.RadiusX=alpha.Width*.215/girl.Width;face.RadiusY=alpha.Height*.151/girl.Height;
                 face.GradientStops.Add(new GradientStop(Color.FromArgb(245,255,255,255),0));face.GradientStops.Add(new GradientStop(Color.FromArgb(220,255,255,255),.65));face.GradientStops.Add(new GradientStop(Colors.Transparent,1));
                 dc.PushOpacityMask(face);dc.DrawImage(girl.Source,imageRect);dc.Pop();
             }
         }
         if(glasses) {
-            // Eye centres on the 1219 x 1290 Gemini portrait: (393,788) and (714,828).
+            // Eye centres on the 1117 x 1408 Gemini portrait: (363,810) and (659,846).
             // The lens centres sit slightly below the bridge origin in the frame geometry.
-            double pixel=alpha.Width/1219;
-            dc.PushTransform(new TranslateTransform(175+(556-609.5)*pixel,350-(1290-787)*pixel));
-            dc.PushTransform(new RotateTransform(7.1));
-            dc.PushTransform(new ScaleTransform(4.76*pixel,6.4*pixel));
+            double pixel=alpha.Width/1117;
+            dc.PushTransform(new TranslateTransform(175+(514-558.5)*pixel,350-(1280-809)*pixel));
+            dc.PushTransform(new RotateTransform(6.9));
+            dc.PushTransform(new ScaleTransform(4.38*pixel,5.9*pixel));
             dc.DrawGeometry(null,Arm,Arms);dc.DrawGeometry(Lens,LensRim,LeftLens);dc.DrawGeometry(Lens,LensRim,RightLens);
             dc.PushOpacity(.30);var shine=new Pen(Brush("#c4cfdf"),1.9);dc.DrawLine(shine,new Point(-47,-6),new Point(-34,-7));dc.DrawLine(shine,new Point(20,-5),new Point(29,-6));dc.Pop();dc.Pop();dc.Pop();dc.Pop();
         }
