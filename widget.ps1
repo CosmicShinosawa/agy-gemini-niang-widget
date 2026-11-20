@@ -65,6 +65,14 @@ public static class GptWidgetNative {
   [DllImport("dwmapi.dll")] static extern int DwmGetWindowAttribute(IntPtr h,int attr,out Rect r,int size);
   public static Rect Frame(IntPtr h){Rect r; if(DwmGetWindowAttribute(h,9,out r,16)!=0)GetWindowRect(h,out r); return r;}
 
+  // Fraction of the rendered image ending at the last visible pixel row.
+  public static double VisibleBottom(byte[] bgra,int width,int height){
+    for(int i=bgra.Length-1;i>=3;i-=4){
+      if(bgra[i]<=12)continue;
+      return (i/4/width+1)/(double)height;
+    }
+    return 1;
+  }
   public static bool IsAntigravity(IntPtr h){
     if(h==IntPtr.Zero)return false;
     if(!IsWindowVisible(h) || (GetWindowLongPtr(h,-20).ToInt64() & 0x80)!=0)return false;
@@ -161,6 +169,7 @@ try{$settings=Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | Conve
 $script:quotaPage=1
 $script:quotaPages=@()
 $script:snapEdges=$settings.snapEdges -ne $false
+$script:bottomSnapped=if($settings.bottomSnapped -is [bool]){$settings.bottomSnapped}else{$script:snapEdges -and $script:offsetBottom -eq 0}
 $script:mirrorOnLeft=$settings.mirrorOnLeft -ne $false
 Initialize-WidgetAutoQuoteSettings $settings
 Initialize-CompletionNotificationState $settings
@@ -168,7 +177,7 @@ function Write-WidgetJson($file,$value){
   $temp=$file+'.tmp';[IO.File]::WriteAllText($temp,($value|ConvertTo-Json -Depth 6),[Text.UTF8Encoding]::new($false))
   if([IO.File]::Exists($file)){[IO.File]::Replace($temp,$file,($file+'.bak'),$true)}else{[IO.File]::Move($temp,$file)}
 }
-function Save-Settings {Write-WidgetJson $settingsFile @{snapEdges=$script:snapEdges;mirrorOnLeft=$script:mirrorOnLeft;layoutVersion=2;right=$script:offsetRight;left=$script:offsetLeft;bottom=$script:offsetBottom;anchor=$script:anchor;side=$script:side;scale=$script:scale;bubbleScale=$script:bubbleScale;collapsed=$script:collapsed;soundOn=$script:soundOn;soundVolume=$script:soundVolume;bubbleTapAdvance=$script:bubbleTapAdvance;hideMenu=$script:hideMenu;colorMode=$script:colorMode;colorChance=$script:colorChance;colorTextChance=$script:colorTextChance;colorPaused=$script:colorPaused;followHost=$script:followHost;desktopTopmost=$script:desktopTopmost;desktopLeft=$script:desktopLeft;desktopTop=$script:desktopTop;characterId=$script:characterId;autoQuoteEnabled=$script:autoQuoteEnabled;autoQuoteIntervalSeconds=$script:autoQuoteIntervalSeconds;taskCompletionBubble=$script:completionNotificationsEnabled}}
+function Save-Settings {Write-WidgetJson $settingsFile @{snapEdges=$script:snapEdges;mirrorOnLeft=$script:mirrorOnLeft;layoutVersion=2;bottomSnapped=$script:bottomSnapped;right=$script:offsetRight;left=$script:offsetLeft;bottom=$script:offsetBottom;anchor=$script:anchor;side=$script:side;scale=$script:scale;bubbleScale=$script:bubbleScale;collapsed=$script:collapsed;soundOn=$script:soundOn;soundVolume=$script:soundVolume;bubbleTapAdvance=$script:bubbleTapAdvance;hideMenu=$script:hideMenu;colorMode=$script:colorMode;colorChance=$script:colorChance;colorTextChance=$script:colorTextChance;colorPaused=$script:colorPaused;followHost=$script:followHost;desktopTopmost=$script:desktopTopmost;desktopLeft=$script:desktopLeft;desktopTop=$script:desktopTop;characterId=$script:characterId;autoQuoteEnabled=$script:autoQuoteEnabled;autoQuoteIntervalSeconds=$script:autoQuoteIntervalSeconds;taskCompletionBubble=$script:completionNotificationsEnabled}}
 function Set-WidgetCharacter([string]$Id,[switch]$NoSave) {
   if($script:widgetMusic -and $script:widgetMusic.Enabled){Stop-WidgetMusic}
   $character=Get-WidgetCharacter $script:appDir $script:dataDir $Id
@@ -177,6 +186,7 @@ function Set-WidgetCharacter([string]$Id,[switch]$NoSave) {
   $alpha=[Windows.Media.Imaging.FormatConvertedBitmap]::new($image,[Windows.Media.PixelFormats]::Bgra32,$null,0)
   $alpha.Freeze();$stride=$image.PixelWidth*4;$pixels=New-Object byte[] ($stride*$image.PixelHeight)
   $alpha.CopyPixels($pixels,$stride,0)
+  $character | Add-Member -NotePropertyName VisibleBottom -NotePropertyValue ([GptWidgetNative]::VisibleBottom($pixels,$image.PixelWidth,$image.PixelHeight)) -Force
   $previous=@{bitmap=$script:bitmap;alpha=$script:alphaBitmap;stride=$script:alphaStride;pixels=$script:alphaPixels;id=$script:characterId;character=$script:activeCharacter}
   try{
     $script:bitmap=$image;$script:alphaBitmap=$alpha;$script:alphaStride=$stride;$script:alphaPixels=$pixels
@@ -319,6 +329,11 @@ function Limit-WidgetHorizontalPosition($Frame,[double]$Dpi,[double]$Left) {
   if($maximum-lt $minimum){return [int][Math]::Round(($minimum+$maximum)/2)}
   return [int][Math]::Round([Math]::Max($minimum,[Math]::Min($maximum,$Left)))
 }
+function Get-WidgetDockedOffset($Frame,[double]$Dpi) {
+  $top=Limit-WidgetVerticalPosition $Frame $Dpi $Frame.Bottom
+  $height=[int]($script:designHeight*$script:displayScale*$Dpi)
+  return ($Frame.Bottom-$top-$height)/$Dpi
+}
 function Limit-WidgetVerticalPosition($Frame,[double]$Dpi,[double]$Top) {
   # Keep the character inside the frame; the transparent space reserved for
   # its bubble may extend above it. Ignore transient press/rebound transforms.
@@ -328,7 +343,8 @@ function Limit-WidgetVerticalPosition($Frame,[double]$Dpi,[double]$Top) {
   $left=$rootOffset.X+$girlOffset.X;$topInStage=$rootOffset.Y+$girlOffset.Y
   $origin=$script:window.PointToScreen([Windows.Point]::new(0,0))
   $topPoint=$root.Parent.PointToScreen([Windows.Point]::new($left,$topInStage))
-  $bottomPoint=$root.Parent.PointToScreen([Windows.Point]::new($left,($topInStage+$girl.ActualHeight)))
+  $foot=if($script:followHost){$girl.ActualHeight*$script:activeCharacter.VisibleBottom}else{$girl.ActualHeight}
+  $bottomPoint=$root.Parent.PointToScreen([Windows.Point]::new($left,($topInStage+$foot)))
   $minimum=$Frame.Top-($topPoint.Y-$origin.Y)
   $maximum=$Frame.Bottom-($bottomPoint.Y-$origin.Y)
   return [int][Math]::Round([Math]::Max($minimum,[Math]::Min($maximum,$Top)))
@@ -893,7 +909,7 @@ $pressMove={param($sender,$event)
   [GptWidgetNative]::SetWindowPos($script:widgetHandle,[IntPtr]::Zero,$x,$y,0,0,0x15)|Out-Null
   $script:lastPosition=$null
   if($script:followHost){
-    $script:offsetRight=($frame.Right-$x-$w)/$dpi;$script:offsetBottom=($frame.Bottom-$y-$h)/$dpi
+    $script:bottomSnapped=$false;$script:offsetRight=($frame.Right-$x-$w)/$dpi;$script:offsetBottom=($frame.Bottom-$y-$h)/$dpi
     $script:offsetLeft=($x-$frame.Left)/$dpi;$script:anchor='free'
   }else{$script:desktopLeft=$x;$script:desktopTop=$y}
 }
@@ -913,6 +929,10 @@ $pressUp={param($sender,$event)
   if(!$moved){Click-Character}
   elseif($script:snapEdges -and $script:followHost -and $script:side-eq 'left' -and $script:offsetLeft-ge 0 -and $script:offsetLeft-le 18){$script:anchor='left';$script:offsetLeft=0;$script:side='left';Set-Facing}
   elseif($script:snapEdges -and $script:followHost -and $script:side-eq 'right' -and $script:offsetRight-ge 0 -and $script:offsetRight-le 18){$script:anchor='right';$script:offsetRight=0;$script:side='right';Set-Facing}
+  if($moved -and $script:followHost -and $script:snapEdges){
+    $dock=Get-WidgetDockedOffset (Get-WidgetPlacementFrame) (Get-WidgetPlacementDpi)
+    if([Math]::Abs($script:offsetBottom-$dock) -le 18){$script:bottomSnapped=$true;$script:offsetBottom=$dock}
+  }
   Save-Settings;$script:hostEventTimer.Start();$event.Handled=$true
 }
 $script:ui.Girl.Add_MouseLeftButtonDown($pressDown);$script:ui.Girl.Add_MouseMove($pressMove);$script:ui.Girl.Add_MouseLeftButtonUp($pressUp)
@@ -1017,6 +1037,7 @@ function Tick-Widget {
         if($null-eq $script:offsetLeft){$script:offsetLeft=[Math]::Max(0,($frame.Right-$frame.Left-$w)/$dpi-$script:offsetRight)}
         $x=[int]($frame.Left+$script:offsetLeft*$dpi)
       }else{$x=[int]($frame.Right-$w-$script:offsetRight*$dpi)}
+      if($script:followHost -and $script:bottomSnapped -and $script:window.IsVisible -and !(Test-WidgetMusicActive)){$script:offsetBottom=Get-WidgetDockedOffset $frame $dpi}
       $desiredY=if($script:followHost){$frame.Bottom-$h-$script:offsetBottom*$dpi}else{$script:desktopTop}
       $y=[int]$desiredY
       if(!$script:followHost){
@@ -1083,7 +1104,15 @@ $script:timer.Interval=[TimeSpan]::FromMilliseconds(1000)
 $script:timer.Add_Tick({try{Tick-Widget;if($script:context.IsOpen){Update-WidgetRestartAction}}catch{[IO.File]::WriteAllText((Join-Path $script:dataDir 'display-error.txt'),$_.Exception.Message)}})
 $script:window.Add_Closed({
   Stop-WidgetRuntime
-  [Windows.Threading.Dispatcher]::CurrentDispatcher.InvokeShutdown()
+  if($script:restartUpdatePath){
+    $entry=Join-Path $script:restartUpdatePath 'widget.ps1'
+    try{
+      Start-Process (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList ('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$entry+'" -DataDir "'+$script:dataDir+'"') -ErrorAction Stop
+    }catch{
+      [void][Windows.MessageBox]::Show(('启动新版失败，请重新打开挂件。'+[Environment]::NewLine+$_.Exception.Message),'Gemini 娘 · 更新')
+    }
+  }
+  $script:window.Dispatcher.BeginInvokeShutdown([Windows.Threading.DispatcherPriority]::Normal)
 })
 try{
   if(!$script:settingsLoadFailed -and ![IO.File]::Exists($settingsFile) -and
@@ -1104,12 +1133,3 @@ try{
   [IO.File]::WriteAllText((Join-Path $script:dataDir 'display-error.txt'),$_.Exception.ToString())
   throw
 }finally{Stop-WidgetRuntime}
-
-if($script:restartUpdatePath){
-  $entry=Join-Path $script:restartUpdatePath 'widget.ps1'
-  try{
-    Start-Process (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList ('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$entry+'" -DataDir "'+$script:dataDir+'"') -ErrorAction Stop
-  }catch{
-    [void][Windows.MessageBox]::Show(('启动新版失败，请重新打开挂件。'+[Environment]::NewLine+$_.Exception.Message),'Gemini 娘 · 更新')
-  }
-}

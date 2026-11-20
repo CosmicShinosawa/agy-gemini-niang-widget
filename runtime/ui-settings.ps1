@@ -216,7 +216,7 @@ function Initialize-WidgetSettingsMenu {
   $script:settingsMenuUi.TopmostDivider=Add-SettingsDivider -ReturnItem
   $script:settingsMenuUi.Topmost=Add-SettingsAction '始终置顶' {param($sender,$event)if($script:followHost){Update-WidgetSettingsMenu;return};$script:desktopTopmost=[bool]$sender.IsChecked;Save-Settings;Tick-Widget} -Checkable -ReturnItem
   Add-SettingsDivider
-  Add-SettingsAction '恢复右下角位置' {if($script:followHost){$script:offsetRight=0;$script:offsetLeft=0;$script:offsetBottom=0;$script:anchor='right'}else{$script:desktopLeft=$null;$script:desktopTop=$null};$script:side='right';$script:lastPosition=$null;Set-Facing;Hide-Quota;Save-Settings;Tick-Widget} -StayOpen
+  Add-SettingsAction '恢复右下角位置' {if($script:followHost){$script:offsetRight=0;$script:offsetLeft=0;$script:offsetBottom=0;$script:bottomSnapped=$true;$script:anchor='right'}else{$script:desktopLeft=$null;$script:desktopTop=$null};$script:side='right';$script:lastPosition=$null;Set-Facing;Hide-Quota;Save-Settings;Tick-Widget} -StayOpen
   } -ReturnItem
   Add-SettingsAction '切换额度页' {Switch-QuotaPage}
   Add-SettingsAction '编辑气泡顺序' {Edit-BubbleSequence}
