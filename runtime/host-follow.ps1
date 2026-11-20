@@ -48,18 +48,19 @@ public sealed class GptWidgetHostFollower : IDisposable {
  public bool Ready {get{return locationHook!=IntPtr.Zero;}}
  public GptWidgetHostFollower(IntPtr widget){this.widget=widget;callback=OnEvent;}
  public static int[] VisibleBounds(IntPtr host,int left,int top,int right,int bottom){
-  return Clip(MonitorFromWindow(host,2),left,top,right,bottom);
+  return Clip(MonitorFromWindow(host,2),left,top,right,bottom,true);
  }
  public static int[] VisibleBoundsAt(int left,int top,int right,int bottom,int x,int y){
-  return Clip(MonitorFromPoint(new Point{X=x,Y=y},2),left,top,right,bottom);
+  return Clip(MonitorFromPoint(new Point{X=x,Y=y},2),left,top,right,bottom,true);
  }
- static int[] Clip(IntPtr monitor,int left,int top,int right,int bottom){
+ static int[] Clip(IntPtr monitor,int left,int top,int right,int bottom,bool workAreaOnly){
   var info=new MonitorInfo();info.Size=Marshal.SizeOf(typeof(MonitorInfo));
   if(GetMonitorInfo(monitor,ref info)){
-   int l=Math.Max(left,info.Work.Left),t=Math.Max(top,info.Work.Top);
-   int r=Math.Min(right,info.Work.Right),b=Math.Min(bottom,info.Work.Bottom);
+   Rect area=workAreaOnly?info.Work:info.Monitor;
+   int l=Math.Max(left,area.Left),t=Math.Max(top,area.Top);
+   int r=Math.Min(right,area.Right),b=Math.Min(bottom,area.Bottom);
    if(r>l&&b>t)return new[]{l,t,r,b};
-   return new[]{info.Work.Left,info.Work.Top,info.Work.Right,info.Work.Bottom};
+   return new[]{area.Left,area.Top,area.Right,area.Bottom};
   }
   return new[]{left,top,right,bottom};
  }
@@ -142,9 +143,11 @@ public sealed class GptWidgetHostFollower : IDisposable {
   IntPtr monitor=MonitorFromPoint(new Point{X=px+temporaryX+width/2,Y=py+temporaryY+height/2},2);
   if(selectedMonitor!=IntPtr.Zero&&monitor!=selectedMonitor&&!LayoutDirty){LayoutDirty=true;if(LayoutRequested!=null)LayoutRequested();}
   selectedMonitor=monitor;
-  // Position follows the full host frame. The work area only clips pixels.
+  // Position follows the full host frame. Clip against the full monitor bounds
+  // (not info.Work) so transparent/acrylic taskbars (e.g. TranslucentTB) reveal
+  // the widget along with the host, while opaque taskbars still cover it by Z-order.
   int x=px+temporaryX,y=py+temporaryY;
-  var bounds=Clip(monitor,frame.Left,frame.Top,frame.Right,frame.Bottom);
+  var bounds=Clip(monitor,frame.Left,frame.Top,frame.Right,frame.Bottom,false);
   int cl=Math.Max(0,Math.Max(frame.Left,bounds[0])-x);
   int ct=Math.Max(0,Math.Max(frame.Top,bounds[1])-y);
   int cr=Math.Min(width,Math.Min(frame.Right,bounds[2])-x);

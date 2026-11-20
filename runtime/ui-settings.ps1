@@ -174,6 +174,8 @@ function Initialize-WidgetSettingsMenu {
   $script:settingsMenuUi.AudioBuiltin=Add-SettingsAction '原版加响（默认）' {Invoke-WidgetAudioAction 'builtin'} -Checkable -ReturnItem
   $script:settingsMenuUi.AudioStar=Add-SettingsAction '星铃' {Invoke-WidgetAudioAction 'star-bell'} -Checkable -ReturnItem
   $script:settingsMenuUi.AudioStar.Uid='radio'
+  $script:settingsMenuUi.AudioSoftBounce=Add-SettingsAction '软弹果冻' {Invoke-WidgetAudioAction 'soft-bounce'} -Checkable -ReturnItem
+  $script:settingsMenuUi.AudioSoftBounce.Uid='radio'
   $script:settingsMenuUi.AudioCustom=Add-SettingsAction '使用自定义音效' {Invoke-WidgetAudioAction 'custom'} -Checkable -ReturnItem
   $script:settingsMenuUi.AudioBuiltin.Uid='radio';$script:settingsMenuUi.AudioCustom.Uid='radio'
   foreach($phase in @(@{id='press';label='自定义按下音效'},@{id='release';label='自定义松开音效'})){
@@ -308,6 +310,7 @@ function Update-WidgetSettingsMenu{
     $audio=Get-WidgetAudioStatus
     $script:settingsMenuUi.AudioBuiltin.IsChecked=$audio.mode-eq 'builtin';$script:settingsMenuUi.AudioCustom.IsChecked=$audio.mode-eq 'custom'
     $script:settingsMenuUi.AudioStar.IsChecked=$audio.mode-eq 'star-bell'
+    $script:settingsMenuUi.AudioSoftBounce.IsChecked=$audio.mode-eq 'soft-bounce'
     foreach($phase in @('press','release')){
       $entry=$audio[$phase]
       $script:settingsMenuUi['AudioName_'+$phase].Header=if($entry.configured){if($entry.available){$entry.name}else{'文件不可用：'+$entry.name}}else{'未设置（无声）'}

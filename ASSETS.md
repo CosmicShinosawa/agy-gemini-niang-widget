@@ -18,7 +18,7 @@ Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件�
 
 ## 音效与语录
 
-- 原版加响的[按压](assets/press.wav)、[松开](assets/release.wav)与星铃的[按压](assets/star-bell-press.wav)、[松开](assets/star-bell-release.wav)均由本项目合成，按 [MIT 许可](LICENSE) 分发。
+- 原版加响的[按压](assets/press.wav)、[松开](assets/release.wav)，星铃的[按压](assets/star-bell-press.wav)、[松开](assets/star-bell-release.wav)，以及软弹果冻的[按压](assets/soft-bounce-press.wav)、[松开](assets/soft-bounce-release.wav)均由本项目合成，按 [MIT 许可](LICENSE) 分发。
 - [默认语录](assets/quotes.json)共 45 条，由维护者与 Gemini 在已有语录基础上选编、增写。其中 18 条与 GPT-Niang 1.3.5 内置语录文字一致，包括由 DSH 小鲸鱼传入的 7 条。感谢两边的台词作者。[GPT-Niang 语录](https://github.com/T7moris/GPT-Niang/blob/main/gpt-niang-usage/assets/quotes.json) · [DSH 七条原文及许可](licenses/upstream-quotes.txt)
 
 ## 上游代码

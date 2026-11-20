@@ -145,7 +145,7 @@ function Read-WidgetAudioPreferences([string]$DataDir) {
     try{
         if((Get-Item -LiteralPath $file).Length-gt 16KB){throw 'Invalid audio preferences'}
         $saved=Get-Content -LiteralPath $file -Raw -Encoding UTF8|ConvertFrom-Json
-        if($saved.version-ne 1 -or $saved.mode-notin @('builtin','star-bell','custom')){throw 'Invalid audio preferences'}
+        if($saved.version-ne 1 -or $saved.mode-notin @('builtin','star-bell','soft-bounce','custom')){throw 'Invalid audio preferences'}
         $prefs.mode=[string]$saved.mode
         foreach($slot in @('press','release')){
             $entry=$saved.$slot
@@ -192,6 +192,7 @@ function New-WidgetAudioState([string]$AppDir,[string]$DataDir,$Preferences) {
             $source=switch($Preferences.mode){
                 'builtin'{Join-Path $AppDir "assets/$slot.wav"}
                 'star-bell'{Join-Path $AppDir "assets/star-bell-$slot.wav"}
+                'soft-bounce'{Join-Path $AppDir "assets/soft-bounce-$slot.wav"}
                 'custom'{Get-WidgetCustomAudioPath $audio $slot}
             }
             $audio[$slot+'Path']=$source
@@ -346,7 +347,7 @@ function Import-WidgetAudio([ValidateSet('press','release')][string]$Slot,[strin
         if(!$committed -and [IO.File]::Exists($target)){[IO.File]::Delete($target)}
     }
 }
-function Set-WidgetAudioMode([ValidateSet('builtin','star-bell','custom')][string]$Mode) {
+function Set-WidgetAudioMode([ValidateSet('builtin','star-bell','soft-bounce','custom')][string]$Mode) {
     $prefs=Copy-WidgetAudioPreferences $script:gptNiangAudio.Preferences;$prefs.mode=$Mode
     Set-WidgetAudioPreferences $prefs;Remove-WidgetUnusedAudioFiles $script:gptNiangAudio $prefs
 }
@@ -382,6 +383,7 @@ function Invoke-WidgetAudioAction([string]$Action,[string]$Slot) {
             'clear'{Clear-WidgetAudioSlot $Slot}
             'builtin'{Set-WidgetAudioMode 'builtin'}
             'star-bell'{Set-WidgetAudioMode 'star-bell'}
+            'soft-bounce'{Set-WidgetAudioMode 'soft-bounce'}
             'custom'{Set-WidgetAudioMode 'custom'}
             'preview'{Invoke-WidgetAudioPreview $Slot}
         }
