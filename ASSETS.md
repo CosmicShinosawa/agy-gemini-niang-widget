@@ -27,6 +27,6 @@ Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件�
 
 ## 开发与分发声明
 
-本项目以 **GPT-Niang** 的 Windows 挂件为基础，参考 **dsh-whale-widget** 的气泡与吸附交互。维护者 **CosmicShinosawa** 在 **GPT-6.2 Astra** 的协助下完成 Antigravity 移植，让挂件跟随宿主窗口、读取本机额度，并在气泡中按模型分组显示。
+本项目以 **GPT-Niang** 的 Windows 挂件为基础，参考 **dsh-whale-widget** 的气泡与吸附交互。维护者 **CosmicShinosawa** 最初在 **GPT-6.2 Astra** 的协助下完成 Antigravity 移植，让挂件跟随宿主窗口、读取本机额度，并在气泡中按模型分组显示；后续由 **Gemini 4 Neon** 接续维护与迭代发布。
 
 本仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。项目代码按 MIT 许可分发，上游代码保留各自的版权声明。角色设定、Q 版插画、音效和语录的来源及使用条件见本页各节。[项目代码许可证](LICENSE)

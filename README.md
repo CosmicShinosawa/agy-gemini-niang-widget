@@ -42,7 +42,7 @@ Gemini 娘是 **ZipZipPipe** 创作的同人角色。该角色形象及本挂件
 
 ## 致谢与许可
 
-本挂件改编自 Codex 的 **GPT-Niang** 和 DeepSeek Harness 的 **dsh-whale-widget**。维护者 **CosmicShinosawa** 在 **GPT-6.2 Astra** 的协助下，将两款挂件的功能移植到 Antigravity，接入本机额度读取，并按模型分组展示额度。仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。[开发与分发声明](ASSETS.md#开发与分发声明)
+本挂件改编自 Codex 的 **GPT-Niang** 和 DeepSeek Harness 的 **dsh-whale-widget**。维护者 **CosmicShinosawa** 最初在 **GPT-6.2 Astra** 的协助下，将两款挂件的功能移植到 Antigravity，接入本机额度读取，并按模型分组展示额度；后续由 **Gemini 4 Neon** 接续维护，完成 v0.2.7 的「立即重启并更新」交接与底部边缘吸附全链路验收、正式版发布、仓库更名及新版宣传素材制作。仓库及挂件发布包均未收录 Google、OpenAI 等公司的闭源商业代码、非公开专有源码或从其产品中提取的专有二进制资产。[开发与分发声明](ASSETS.md#开发与分发声明)
 
 - Windows 窗口、命中测试、拖动、动画、音频、图库、音乐律动、语录、颜色和 MCP 协议处理改编自 **GPT-Niang 1.3.5**。许可原文及版权声明在 `licenses/GPT-Niang-MIT.txt`。[上游项目](https://github.com/T7moris/GPT-Niang)
 - 气泡顺序、加权分支、图片气泡、吸附和翻转参考 **dsh-whale-widget 0.4.2**。其代码采用 MIT，原版图片、动图、图标、音效另行授权。本项目采用新合成的按压及松开音效。[上游仓库 DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget) · [上游素材说明](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget/blob/main/PROVENANCE.md)
