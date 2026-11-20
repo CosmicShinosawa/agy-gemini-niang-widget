@@ -4,7 +4,7 @@ $root=Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'update.ps1')
 Add-Type -AssemblyName PresentationFramework,System.IO.Compression.FileSystem
 [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12
-$repo='https://github.com/CosmicShinosawa/gemini-niang-widget/releases'
+$repo='https://github.com/CosmicShinosawa/agy-gemini-niang-widget/releases'
 $lock=[Threading.Mutex]::new($false,'Local\GeminiNiangReleaseUpdate')
 $held=$false
 function Get-WidgetFileSha256([string]$Path){

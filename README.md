@@ -2,7 +2,7 @@
 
 本挂件目前仅支持 **Windows 上的 Antigravity 桌面客户端**。Antigravity IDE（包括 Windows 版）及其他平台均未适配。
 
-**[下载 Windows 安装器 · GeminiNiang-Setup.exe](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest/download/GeminiNiang-Setup.exe)**
+**[下载 Windows 安装器 · GeminiNiang-Setup.exe](https://github.com/CosmicShinosawa/agy-gemini-niang-widget/releases/latest/download/GeminiNiang-Setup.exe)**
 
 1. 点击上方链接。如果你已经在 GitHub 正式版页面，展开 **Assets**，只下载 **`GeminiNiang-Setup.exe`** 即可。
 2. 双击下载好的文件，点 **「确定」**。安装器会自动装好挂件和 Antigravity 配套插件，保留已有语录和设置。
@@ -10,7 +10,7 @@
 
 从 **v0.2.4** 起，首次使用会默认开启「登录后随反重力启动」。登录 Windows 后打开 Antigravity，挂件就会跟着出现。右键点击挂件可开关此项。从 v0.2.3 或更早版本升级会保留原来的设置；之前未开启的用户，可以在右键菜单手动勾选。
 
-安装器不会创建开始菜单快捷方式。以后手动退出挂件后，可以到安装完成提示给出的目录双击 `预览挂件.cmd`。ZIP 和 JSON 供自动更新使用。[查看正式版及全部文件](https://github.com/CosmicShinosawa/gemini-niang-widget/releases/latest)
+安装器不会创建开始菜单快捷方式。以后手动退出挂件后，可以到安装完成提示给出的目录双击 `预览挂件.cmd`。ZIP 和 JSON 供自动更新使用。[查看正式版及全部文件](https://github.com/CosmicShinosawa/agy-gemini-niang-widget/releases/latest)
 
 <img src="gemini-widget.png" alt="紫发猫耳、金紫异色瞳的 Gemini 娘挂件" width="180">
 
@@ -20,7 +20,7 @@ Gemini 娘是 **ZipZipPipe** 创作的同人角色。该角色形象及本挂件
 
 ## 额度从哪里来
 
-我自己是 **Google AI Pro 付费用户**，目前只用自己的账号实测过额度显示。其他套餐和 Jio 等订阅渠道暂时没有账号可供实测。如果挂件少了一组额度、周期不对，或重置时间与 Antigravity 的 **Settings → Models** 不一致，欢迎说明你使用的套餐、订阅渠道，以及具体哪一项有差异。[提交 Issue](https://github.com/CosmicShinosawa/gemini-niang-widget/issues/new)
+我自己是 **Google AI Pro 付费用户**，目前只用自己的账号实测过额度显示。其他套餐和 Jio 等订阅渠道暂时没有账号可供实测。如果挂件少了一组额度、周期不对，或重置时间与 Antigravity 的 **Settings → Models** 不一致，欢迎说明你使用的套餐、订阅渠道，以及具体哪一项有差异。[提交 Issue](https://github.com/CosmicShinosawa/agy-gemini-niang-widget/issues/new)
 
 反重力桌面版运行且已登录时，挂件直接向它的本机额度接口查询各组剩余百分比及重置时刻，每分钟自动刷新一次。打开额度气泡或点击 ↻ 也会刷新。此方式无需安装 agy CLI，设置页可以关闭。重置时刻按本机时区显示，悬停气泡可查看来源和读取时间。
 

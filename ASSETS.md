@@ -14,7 +14,7 @@ Gemini 娘是围绕 Gemini 创作的同人形象。该角色形象及本挂件�
 - [插件图标](antigravity-plugin/logo.png)由默认立绘等比缩小并添加透明留白，用于 Antigravity 的 Customizations 面板。[随插件分发的图标声明](antigravity-plugin/ICON-NOTICE.md)
 - [音乐律动预览](音乐律动-墨镜预览.png)使用同一张立绘，墨镜和音箱由挂件程序绘制并叠加。
 
-如果你是这张插画的制作者、权利人，或知道原始出处，欢迎提供作品链接、补充署名，或联系维护者更换、移除相关图片。[项目 Issues](https://github.com/CosmicShinosawa/gemini-niang-widget/issues)
+如果你是这张插画的制作者、权利人，或知道原始出处，欢迎提供作品链接、补充署名，或联系维护者更换、移除相关图片。[项目 Issues](https://github.com/CosmicShinosawa/agy-gemini-niang-widget/issues)
 
 ## 音效与语录
 
