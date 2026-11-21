@@ -1,7 +1,7 @@
 {
   "name": "gemini-niang",
   "displayName": "Gemini 娘挂件",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "logo": "logo.png",
   "description": "读取挂件最近一次观察到的模型额度，并在反重力回复结束时通知桌面角色。"
 }

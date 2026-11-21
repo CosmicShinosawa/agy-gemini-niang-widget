@@ -963,7 +963,7 @@ function Ensure-QuotaWorker([long]$now){
   $workerPath=Join-Path $script:appDir 'runtime\quota.ps1'
   $argsLine='-NoProfile -STA -ExecutionPolicy Bypass -File "'+$workerPath+'" -DataDir "'+$script:dataDir+'"'
   if($fetch){$argsLine+=' -Refresh'}
-  $script:worker=Start-Process -FilePath (Join-Path $PSHOME 'powershell.exe') -ArgumentList $argsLine -WindowStyle Hidden -PassThru
+  $script:worker=Start-WidgetHiddenPowerShell -Arguments $argsLine -PassThru
 }
 function Stop-WidgetRuntime {
   if($script:runtimeClosed){return};$script:runtimeClosed=$true
@@ -1107,7 +1107,7 @@ $script:window.Add_Closed({
   if($script:restartUpdatePath){
     $entry=Join-Path $script:restartUpdatePath 'widget.ps1'
     try{
-      Start-Process (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList ('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$entry+'" -DataDir "'+$script:dataDir+'"') -ErrorAction Stop
+      Start-WidgetHiddenPowerShell -Arguments ('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$entry+'" -DataDir "'+$script:dataDir+'"')
     }catch{
       [void][Windows.MessageBox]::Show(('启动新版失败，请重新打开挂件。'+[Environment]::NewLine+$_.Exception.Message),'Gemini 娘 · 更新')
     }
@@ -1119,6 +1119,8 @@ try{
      $script:dataDir -eq (Join-Path $env:LOCALAPPDATA 'GeminiNiangWidget') -and
      ![IO.File]::Exists((Join-Path $script:dataDir 'status.json')) -and ![IO.File]::Exists((Get-WidgetStartupLink))){
     try{Set-WidgetAutostart $true}catch{Write-Warning "登录启动项创建失败：$_"}
+  }elseif($script:dataDir -eq (Join-Path $env:LOCALAPPDATA 'GeminiNiangWidget')){
+    try{Repair-WidgetAutostartLink}catch{Write-Warning "登录启动项更新失败：$_"}
   }
   # Do not replace a settings file that failed to load with defaults; the
   # user's original file is the only remaining copy.

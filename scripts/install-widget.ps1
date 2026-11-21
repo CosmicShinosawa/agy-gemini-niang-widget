@@ -61,13 +61,20 @@ try{
         if([IO.File]::Exists($existing)){
             $autostart=(New-Object -ComObject WScript.Shell).CreateShortcut($existing)
             if($autostart.Arguments -match 'runtime[\\/]follow-launch\.ps1"\s*$'){
-                $autostart.Arguments='-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+(Join-Path $target 'runtime\follow-launch.ps1')+'"'
+                $autostart.TargetPath=Join-Path ([Environment]::SystemDirectory) 'wscript.exe'
+                $autostart.Arguments='//B //NoLogo "'+(Join-Path $target 'runtime\launch-hidden.vbs')+'" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+(Join-Path $target 'runtime\follow-launch.ps1')+'"'
                 $autostart.WorkingDirectory=$target
                 $autostart.Save()
             }
         }
     }
-    if(!$NoLaunch){Start-Process $shell -ArgumentList $argsLine -WindowStyle Hidden}
+    if(!$NoLaunch){
+        $launchInfo=[Diagnostics.ProcessStartInfo]::new($shell,$argsLine)
+        $launchInfo.UseShellExecute=$false
+        $launchInfo.CreateNoWindow=$true
+        $launched=[Diagnostics.Process]::Start($launchInfo)
+        if($launched){$launched.Dispose()}
+    }
     $message="Gemini 娘挂件 $activeVersion 已安装。打开 Antigravity 即可查看挂件。以后也可以双击安装目录中的「预览挂件.cmd」重新打开。`r`n$target`r`n`r`n已打开的 Antigravity 可在方便时重新启动，以加载配套插件。"
     if(!(Get-Command node.exe -ErrorAction SilentlyContinue)){$message+="`r`n`r`n额度气泡可以直接使用。如需配套插件的 MCP 和回复结束提醒，请安装 Node.js LTS 后重新打开 Antigravity。"}
     [IO.File]::WriteAllText($report,$message)

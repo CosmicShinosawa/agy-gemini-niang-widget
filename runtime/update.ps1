@@ -38,7 +38,7 @@ function Start-WidgetUpdate([switch]$Automatic){
     $worker=Join-Path $script:appDir 'runtime/update-worker.ps1'
     $argsLine='-NoProfile -STA -ExecutionPolicy Bypass -File "'+$worker+'" -DataDir "'+$script:dataDir+'"'
     if($Automatic){$argsLine+=' -Automatic'}
-    $script:updateWorker=Start-Process (Join-Path $PSHOME 'powershell.exe') -ArgumentList $argsLine -WindowStyle Hidden -PassThru
+    $script:updateWorker=Start-WidgetHiddenPowerShell -Arguments $argsLine -PassThru
 }
 
 function Test-WidgetUpdateDue([long]$Now){

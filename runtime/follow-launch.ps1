@@ -10,7 +10,11 @@ try{
         $current=@(Get-Process Antigravity -ErrorAction SilentlyContinue |
             Where-Object MainWindowHandle -ne 0 | ForEach-Object {$_.Id.ToString()+'@'+$_.StartTime.Ticks})
         if($current.Count -and !@($current | Where-Object {$_ -in $previous}).Count){
-            Start-Process -FilePath (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList ('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$widget+'"')
+            $info=[Diagnostics.ProcessStartInfo]::new((Join-Path $PSHOME 'powershell.exe'),('-NoProfile -STA -ExecutionPolicy Bypass -File "'+$widget+'"'))
+            $info.UseShellExecute=$false
+            $info.CreateNoWindow=$true
+            $child=[Diagnostics.Process]::Start($info)
+            if($child){$child.Dispose()}
         }
         $previous=$current
         Start-Sleep -Seconds 3
