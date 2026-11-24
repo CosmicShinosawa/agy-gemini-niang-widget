@@ -139,6 +139,11 @@ public sealed class GptWidgetHostFollower : IDisposable {
     SetWindowPos(companion,IntPtr.Zero,cx,cy,0,0,0x215);
   }
   int px=anchor=="right"?frame.Right-width-right:frame.Left+left;
+  if(anchor!="right"&&anchor!="left"){
+   int maxPx=Math.Max(frame.Left,frame.Right-width);
+   if(px<frame.Left)px=frame.Left;
+   else if(px>maxPx)px=maxPx;
+  }
   int py=frame.Bottom-height-bottom;
   IntPtr monitor=MonitorFromPoint(new Point{X=px+temporaryX+width/2,Y=py+temporaryY+height/2},2);
   if(selectedMonitor!=IntPtr.Zero&&monitor!=selectedMonitor&&!LayoutDirty){LayoutDirty=true;if(LayoutRequested!=null)LayoutRequested();}

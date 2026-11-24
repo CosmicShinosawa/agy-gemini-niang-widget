@@ -58,14 +58,14 @@
           <TextBlock x:Name="WeekReset" FontSize="11" LineHeight="14" LineStackingStrategy="BlockLineHeight" Foreground="#736283"/>
           <TextBlock x:Name="WeekUsed" Visibility="Collapsed"/>
         </StackPanel>
-        <StackPanel x:Name="ArgonRow" Margin="0,1,0,0" IsHitTestVisible="False">
+        <StackPanel x:Name="ExtraRow" Margin="0,1,0,0" Visibility="Collapsed" IsHitTestVisible="False">
           <Grid Height="18">
-            <TextBlock x:Name="ArgonLabel" Margin="0,0,48,0" TextTrimming="CharacterEllipsis" Text="Gemini 4 Argon · 每周" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
-            <TextBlock x:Name="ArgonLeft" Text="—" HorizontalAlignment="Right" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" Foreground="#745A98"/>
+            <TextBlock x:Name="ExtraLabel" Margin="0,0,48,0" TextTrimming="CharacterEllipsis" Text="其他额度" FontSize="13" VerticalAlignment="Center" Foreground="#645674"/>
+            <TextBlock x:Name="ExtraLeft" Text="—" HorizontalAlignment="Right" FontFamily="Segoe UI" FontWeight="Bold" FontSize="16" Foreground="#745A98"/>
           </Grid>
-          <Border Height="2" Background="#EAE4F3" CornerRadius="1"><Border x:Name="ArgonBar" Background="#AA95CD" Width="0" HorizontalAlignment="Left"/></Border>
-          <TextBlock x:Name="ArgonReset" Margin="10,0,0,0" FontSize="11" LineHeight="14" LineStackingStrategy="BlockLineHeight" Foreground="#736283"/>
-          <TextBlock x:Name="ArgonUsed" Visibility="Collapsed"/>
+          <Border Height="2" Background="#EAE4F3" CornerRadius="1"><Border x:Name="ExtraBar" Background="#AA95CD" Width="0" HorizontalAlignment="Left"/></Border>
+          <TextBlock x:Name="ExtraReset" Margin="10,0,0,0" FontSize="11" LineHeight="14" LineStackingStrategy="BlockLineHeight" Foreground="#736283"/>
+          <TextBlock x:Name="ExtraUsed" Visibility="Collapsed"/>
         </StackPanel>
         <TextBlock x:Name="Status" Visibility="Collapsed" Text="正在读取额度…"/>
       </StackPanel>

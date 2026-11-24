@@ -120,7 +120,7 @@ $script:window=[Windows.Markup.XamlReader]::Parse((Get-Content -LiteralPath (Joi
 $script:designWidth=[double]$script:window.FindName('AnimationStage').Width
 $script:designHeight=[double]$script:window.FindName('AnimationStage').Height
 $script:ui=@{}
-foreach($name in @('Root','Bubble','Tail','TailNear','SceneText','QuotaText','QuoteText','BubbleShape','Girl','PressScale','FacingScale','TextFacingScale','Header','Refresh','MenuButton','Status','LiveDot','ShortRow','WeekRow','ShortLabel','WeekLabel','ShortUsed','ShortLeft','ShortReset','ShortBar','WeekUsed','WeekLeft','WeekReset','WeekBar','ArgonRow','ArgonLabel','ArgonUsed','ArgonLeft','ArgonReset','ArgonBar')){$script:ui[$name]=$script:window.FindName($name)}
+foreach($name in @('Root','Bubble','Tail','TailNear','SceneText','QuotaText','QuoteText','BubbleShape','Girl','PressScale','FacingScale','TextFacingScale','Header','Refresh','MenuButton','Status','LiveDot','ShortRow','WeekRow','ShortLabel','WeekLabel','ShortUsed','ShortLeft','ShortReset','ShortBar','WeekUsed','WeekLeft','WeekReset','WeekBar','ExtraRow','ExtraLabel','ExtraUsed','ExtraLeft','ExtraReset','ExtraBar')){$script:ui[$name]=$script:window.FindName($name)}
 $script:ui.SequenceImage=$script:window.FindName('SequenceImage')
 $script:characterId='gemini-cat';$script:activeCharacter=$null
 $script:status=$null
@@ -151,6 +151,10 @@ try{$settings=Get-Content -LiteralPath $settingsFile -Raw -Encoding UTF8 | Conve
     }
     if(@('left','right','free')-contains $settings.anchor){$script:anchor=$settings.anchor}
     if(@('left','right')-contains $settings.side){$script:side=$settings.side}
+    if($settings.snapEdges -ne $false -and $script:anchor-eq 'free'){
+      if($script:side-eq 'right' -and $script:offsetRight-ge -2 -and $script:offsetRight-le 18){$script:anchor='right';$script:offsetRight=[Math]::Max(0.0,$script:offsetRight)}
+      elseif($script:side-eq 'left' -and $null-ne $script:offsetLeft -and $script:offsetLeft-ge -2 -and $script:offsetLeft-le 18){$script:anchor='left';$script:offsetLeft=[Math]::Max(0.0,$script:offsetLeft)}
+    }
   }else{$script:offsetBottom=0;if($script:offsetRight-gt 18){$script:anchor='free'}}
   if($null-ne $settings.soundOn){$script:soundOn=($settings.soundOn-is [bool] -and $settings.soundOn)}
   if($null-ne $settings.soundVolume){try{$value=[double]$settings.soundVolume;if(![double]::IsNaN($value)-and ![double]::IsInfinity($value)){$script:soundVolume=[Math]::Min(1.0,[Math]::Max(0.0,$value))}}catch{}}
@@ -490,7 +494,7 @@ function Update-BubbleTooltip {
     $shown=@((Get-QuotaRows)|ForEach-Object{$_.window})
     foreach($q in @($script:status.windows|Where-Object{$null-ne $_ -and $_ -notin $shown})){
       $label=Get-QuotaWindowLabel $q ''
-      $detail=if($q.resetsAt){Format-ResetTime ([long]$q.resetsAt) ([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())}else{'未提供重置时间'}
+      $detail=if($q.resetsAt){Format-ResetTime ([long]$q.resetsAt) ([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())}else{Get-MissingResetLabel $q}
       $parts+=$q.group+' '+$label+'：已用 '+([double]$q.used).ToString('0.#')+'%，'+$detail
     }
     (@($script:ui.Header.Text)+$parts+@($script:ui.Status.Text))-join "`n"
@@ -623,7 +627,16 @@ function Request-Refresh([switch]$Fetch) {
   $flag=Join-Path $script:dataDir $(if($Fetch){'fetch.flag'}else{'refresh.flag'})
   [IO.File]::WriteAllText($flag,[DateTime]::UtcNow.ToString('o'))
 }
-function Exit-WidgetForSession { $script:window.Close() }
+function Exit-WidgetForSession {
+  if(!$script:restartUpdatePath){
+    try{
+      $session=(Get-Process -Id $PID).SessionId
+      $pids=@(Get-Process Antigravity -ErrorAction SilentlyContinue | Where-Object {$_.SessionId -eq $session} | ForEach-Object {$_.Id.ToString()+'@'+$_.StartTime.Ticks})
+      Write-WidgetJson (Join-Path $script:dataDir 'manual-exit.json') @{at=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();pids=$pids}
+    }catch{}
+  }
+  $script:window.Close()
+}
 function Set-MenuVisible([bool]$show){
   $show=$show -and !$script:hideMenu
   $script:ui.MenuButton.Opacity=if($show){1}else{0};$script:ui.MenuButton.IsHitTestVisible=$show
@@ -657,6 +670,12 @@ function Format-ResetTime([long]$timestamp,[long]$now,[TimeZoneInfo]$timeZone=[T
   $day=if($reset.Date-eq $today){'今日'}elseif($reset.Date-eq $today.AddDays(1)){'明日'}else{$reset.ToString('MM-dd')}
   return $day+' '+$reset.ToString('HH:mm')+' 重置'
 }
+function Get-MissingResetLabel($Window){
+  if($Window -and $script:status -and $script:status.source -eq 'Antigravity 本机额度接口' -and [double]$Window.remaining -ge 100){
+    return '满额 · 使用后开始计时'
+  }
+  return '未提供重置时间'
+}
 function Format-ResetDisplay([long]$timestamp,[long]$now){
   if($timestamp-le $now -and $timestamp*1000 -le $script:status.observedAt){return '本轮重置时间待更新'}
   if($timestamp-le $now -or $script:resetTimeMode-eq 'fixed'){return Format-ResetTime $timestamp $now}
@@ -679,6 +698,13 @@ function Switch-QuotaPage {
   $script:quotaPage=1+($script:quotaPage % [Math]::Max(1,$script:quotaPages.Count))
   Update-Quota;Restart-SceneTtl
 }
+function Get-QuotaGroupMeta([string]$GroupName) {
+  switch -Regex ($GroupName.Trim()) {
+    '^(Gemini Models|Gemini\s*模型)$' { return @{rank=0;title='Gemini'} }
+    '^(Claude and GPT models|Claude\s*[与和&/]\s*GPT\s*模型)$' { return @{rank=1;title='Claude/GPT'} }
+    default { return @{rank=10;title=$GroupName.Trim()} }
+  }
+}
 function New-QuotaPages($windows) {
   $groups=[ordered]@{}
   foreach($q in $windows){
@@ -686,23 +712,31 @@ function New-QuotaPages($windows) {
     if(!$groups.Contains($q.group)){$groups[$q.group]=[Collections.ArrayList]::new()}
     [void]$groups[$q.group].Add($q)
   }
-  $gemini='Gemini Models';$argon='Gemini 4 Argon';$partners='Claude and GPT models'
-  $known=@($gemini,$argon,$partners)
-  $prefixes=@('Short','Week','Argon')
-  $proLayout=$groups.Contains($gemini) -and $groups.Contains($argon) -and $groups.Contains($partners)
-  $order=@($groups.Keys)
-  if($proLayout){$order=@($gemini,$partners)+@($order | Where-Object {$_ -notin $known})}
-  foreach($group in $order){
-    $title=switch($group){$gemini{'Gemini'} $partners{'Claude/GPT'} default{$group}}
-    $members=@($groups[$group])
-    if($proLayout -and $group -in @($gemini,$partners)){
-      $members=@($members | Where-Object minutes -eq 300)+@($members | Where-Object minutes -eq 10080)+@($members | Where-Object {$_.minutes -notin @(300,10080)})
+  $prefixes=@('Short','Week','Extra')
+  $index=0
+  $ordered=@(
+    foreach($key in $groups.Keys){
+      $meta=Get-QuotaGroupMeta $key
+      [pscustomobject]@{key=$key;rank=$meta.rank;title=$meta.title;index=$index++}
     }
-    if($proLayout -and $group -eq $gemini){$members+=@($groups[$argon])}
+  ) | Sort-Object rank, index
+  foreach($entry in $ordered){
+    $group=$entry.key
+    $title=$entry.title
+    $members=@($groups[$group])
+    $members=@(
+      $members | Sort-Object @{Expression={
+        if($_.minutes -eq 300){0}
+        elseif($_.minutes -eq 10080){1}
+        elseif($null -ne $_.minutes -and [double]$_.minutes -gt 0){2}
+        else{3}
+      }}, @{Expression={
+        if($null -ne $_.minutes){[double]$_.minutes}else{[double]::MaxValue}
+      }}
+    )
     $rows=@()
     foreach($q in $members){
       $label=Get-QuotaWindowLabel $q '额度'
-      if($q.group -ne $group){$label=$q.group+' · '+$label}
       $rows+=@{prefix=$prefixes[$rows.Count];label=$label;window=$q}
       if($rows.Count -eq $prefixes.Count){[pscustomobject]@{title=$title;rows=$rows};$rows=@()}
     }
@@ -737,7 +771,7 @@ function Update-Quota {
   }
   $now=[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
   $rows=@(Get-QuotaRows)
-  foreach($slot in @('Short','Week','Argon')){
+  foreach($slot in @('Short','Week','Extra')){
     if($slot -notin $rows.prefix){$script:ui[$slot+'Row'].Visibility='Collapsed';$script:ui[$slot+'Reset'].Text=''}
   }
   foreach($row in $rows){
@@ -755,7 +789,7 @@ function Update-Quota {
     $used=([double]$q.used).ToString('0.#');$left=([double]$q.remaining).ToString('0.#')
     $script:ui[$prefix+'Used'].Text=if($expired){"上次 $used%"}else{"已用 $used%"}
     $script:ui[$prefix+'Left'].Text=if($expired -and $script:status.queryOk -ne $false){'—'}else{"$left%"}
-    $script:ui[$prefix+'Reset'].Text=if($hasReset){Format-ResetDisplay ([long]$q.resetsAt) $now}else{'未提供重置时间'}
+    $script:ui[$prefix+'Reset'].Text=if($hasReset){Format-ResetDisplay ([long]$q.resetsAt) $now}else{Get-MissingResetLabel $q}
     if($hasReset){$script:ui[$prefix+'Reset'].ToolTip='本机时间 '+[DateTimeOffset]::FromUnixTimeSeconds([long]$q.resetsAt).ToLocalTime().ToString('yyyy-MM-dd HH:mm zzz')+' 重置 · '+(Reset-Label ([double]$q.resetsAt-$now))}
     $script:ui[$prefix+'Bar'].Width=if($expired -and $script:status.queryOk -ne $false){0}else{184*[double]$q.remaining/100}
     $color=if($expired){'#B3A7C0'}elseif([double]$q.used-ge 90){'#D77659'}elseif([double]$q.used-ge 75){'#D0A051'}else{'#9B86C1'}
@@ -813,6 +847,7 @@ if([IO.File]::Exists($stopFlag)){
   }
 }
 Remove-Item -LiteralPath $stopFlag -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath (Join-Path $script:dataDir 'manual-exit.json') -ErrorAction SilentlyContinue
 $script:worker=$null
 $script:lastWorkerProbe=0;$script:lastWorkerStart=0;$script:runtimeClosed=$false
 $script:hostHandle=[GptWidgetNative]::FindAntigravity();$script:lastPresence=0;$script:lastHostProbe=0;$script:drag=$null
@@ -927,8 +962,8 @@ $pressUp={param($sender,$event)
   Animate-Press $false
   Play-WidgetReleaseSound
   if(!$moved){Click-Character}
-  elseif($script:snapEdges -and $script:followHost -and $script:side-eq 'left' -and $script:offsetLeft-ge 0 -and $script:offsetLeft-le 18){$script:anchor='left';$script:offsetLeft=0;$script:side='left';Set-Facing}
-  elseif($script:snapEdges -and $script:followHost -and $script:side-eq 'right' -and $script:offsetRight-ge 0 -and $script:offsetRight-le 18){$script:anchor='right';$script:offsetRight=0;$script:side='right';Set-Facing}
+  elseif($script:snapEdges -and $script:followHost -and $script:side-eq 'left' -and $script:offsetLeft-ge -2 -and $script:offsetLeft-le 18){$script:anchor='left';$script:offsetLeft=0;$script:side='left';Set-Facing}
+  elseif($script:snapEdges -and $script:followHost -and $script:side-eq 'right' -and $script:offsetRight-ge -2 -and $script:offsetRight-le 18){$script:anchor='right';$script:offsetRight=0;$script:side='right';Set-Facing}
   if($moved -and $script:followHost -and $script:snapEdges){
     $dock=Get-WidgetDockedOffset (Get-WidgetPlacementFrame) (Get-WidgetPlacementDpi)
     if([Math]::Abs($script:offsetBottom-$dock) -le 18){$script:bottomSnapped=$true;$script:offsetBottom=$dock}
@@ -1036,6 +1071,8 @@ function Tick-Widget {
       elseif($script:anchor-eq 'free'){
         if($null-eq $script:offsetLeft){$script:offsetLeft=[Math]::Max(0,($frame.Right-$frame.Left-$w)/$dpi-$script:offsetRight)}
         $x=[int]($frame.Left+$script:offsetLeft*$dpi)
+        $maxFreeX=[Math]::Max($frame.Left,$frame.Right-$w)
+        if($x-lt $frame.Left){$x=$frame.Left}elseif($x-gt $maxFreeX){$x=$maxFreeX}
       }else{$x=[int]($frame.Right-$w-$script:offsetRight*$dpi)}
       if($script:followHost -and $script:bottomSnapped -and $script:window.IsVisible -and !(Test-WidgetMusicActive)){$script:offsetBottom=Get-WidgetDockedOffset $frame $dpi}
       $desiredY=if($script:followHost){$frame.Bottom-$h-$script:offsetBottom*$dpi}else{$script:desktopTop}
@@ -1050,7 +1087,7 @@ function Tick-Widget {
         $script:lastPosition=$position
         if($script:context.IsOpen){Set-WidgetMenuBounds;Position-WidgetMenuToHost}
       }
-      if($script:followHost){$nativeFrame=[GptWidgetNative]::Frame($script:hostHandle);$script:hostFollower.Configure($script:hostHandle,$nativeFrame.Left,$nativeFrame.Top,$nativeFrame.Right,$nativeFrame.Bottom,$w,$h,[int]($script:offsetLeft*$dpi),[int]($script:offsetRight*$dpi),[int]($script:offsetBottom*$dpi),$script:anchor,$true)}
+      if($script:followHost){$nativeFrame=[GptWidgetNative]::Frame($script:hostHandle);$effectiveLeft=if($script:anchor-eq 'free'){$x-$frame.Left}else{[int]($script:offsetLeft*$dpi)};$script:hostFollower.Configure($script:hostHandle,$nativeFrame.Left,$nativeFrame.Top,$nativeFrame.Right,$nativeFrame.Bottom,$w,$h,$effectiveLeft,[int]($script:offsetRight*$dpi),[int]($script:offsetBottom*$dpi),$script:anchor,$true)}
       Update-WidgetMusicPlacement $frame $dpi $x $y ([bool]$visible)
     }
     if($script:followHost){

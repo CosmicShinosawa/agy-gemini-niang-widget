@@ -32,6 +32,12 @@ function Repair-WidgetAutostartLink {
         $link.WorkingDirectory=$spec.WorkingDirectory
         $link.Save()
     }
+    $watcherMutex=$null
+    if([Threading.Mutex]::TryOpenExisting('Local\GeminiNiangLoginWatcher',[ref]$watcherMutex)){
+        $watcherMutex.Dispose()
+    }else{
+        Start-WidgetHiddenPowerShell -Arguments $spec.WatcherArguments -WorkingDirectory $spec.WorkingDirectory
+    }
 }
 function Set-WidgetAutostart([bool]$enabled) {
     $path=Get-WidgetStartupLink

@@ -116,9 +116,14 @@ function Read-QuotaRows($lines) {
             $prefix=$Matches['group']
             $period=Get-QuotaPeriod $Matches['period']
             $minutes=$period.minutes;$label=$period.label
-            $previous=$lines[$i-1]
+            $previous=''
+            for($j=$i-1;$j -ge 0;$j--){
+                $candidate=$lines[$j].Trim()
+                if(!$candidate -or $candidate -match '^[iⓘℹ️]$'){continue}
+                $previous=$candidate;break
+            }
             if($prefix){$group=$prefix}
-            elseif($previous -notmatch '^\d+(\.\d+)?\s*%$'){$group=$previous}
+            elseif($previous -and $previous -notmatch '^\d+(\.\d+)?\s*%$'){$group=$previous}
         }elseif($label -and $line -match '^(\d+(?:\.\d+)?)\s*%$'){
             $value=[double]::Parse($Matches[1],[Globalization.CultureInfo]::InvariantCulture)
             if($value -le 100 -and $group){
